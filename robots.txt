@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nmn-deb98.github.io/Techima.github.io/sitemap.xml
