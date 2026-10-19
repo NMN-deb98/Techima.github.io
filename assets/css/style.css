@@ -485,3 +485,199 @@ main { flex: 1 0 auto; }
     padding: 6px 8px;
   }
 }
+
+
+/* Homepage hero — animated green coding terminal */
+.hero-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 64px);
+}
+
+.hero-copy {
+  min-width: 0;
+}
+
+.hero-terminal {
+  position: relative;
+  width: 100%;
+  max-width: 510px;
+  justify-self: center;
+  padding: 14px 12px 0;
+  isolation: isolate;
+  filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.28));
+}
+
+.terminal-window {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border: 1px solid rgba(74, 222, 128, 0.48);
+  border-radius: 15px;
+  background: #06130f;
+  box-shadow: 0 0 0 5px rgba(74, 222, 128, 0.045), 0 0 38px rgba(34, 197, 94, 0.16);
+  transform: perspective(1000px) rotateY(-3deg);
+}
+
+.terminal-topbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  padding: 0 14px;
+  border-bottom: 1px solid rgba(74, 222, 128, 0.17);
+  background: rgba(20, 40, 30, 0.92);
+}
+
+.terminal-topbar > span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  opacity: 0.8;
+}
+
+.terminal-topbar > span:nth-child(2) { opacity: 0.55; }
+.terminal-topbar > span:nth-child(3) { opacity: 0.32; }
+
+.terminal-topbar b {
+  margin-inline-start: auto;
+  color: #86efac;
+  font: 500 0.75rem/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
+  direction: ltr;
+}
+
+.terminal-screen {
+  position: relative;
+  min-height: 238px;
+  padding: 23px clamp(14px, 2.5vw, 27px) 18px;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0, transparent 3px, rgba(74, 222, 128, 0.025) 4px),
+    radial-gradient(ellipse at 50% 0, rgba(34, 197, 94, 0.11), transparent 70%),
+    #06130f;
+  color: #bbf7d0;
+  font: 500 clamp(0.76rem, 1.2vw, 0.91rem)/1.9 ui-monospace, SFMono-Regular, Consolas, monospace;
+  text-align: left;
+  direction: ltr;
+}
+
+.terminal-line {
+  margin: 0 0 9px;
+  opacity: 0;
+  transform: translateY(7px);
+  animation: terminal-line-in 650ms ease-out forwards;
+}
+
+.terminal-line-1 { animation-delay: 350ms; }
+.terminal-line-2 { animation-delay: 900ms; }
+.terminal-line-3 { animation-delay: 1450ms; }
+.terminal-line-4 { animation-delay: 2000ms; }
+.terminal-line-5 { animation-delay: 2550ms; margin-bottom: 0; }
+
+.terminal-prompt { color: #4ade80; }
+.terminal-key { color: #86efac; }
+.terminal-value { color: #d1fae5; }
+
+.terminal-cursor {
+  display: inline-block;
+  color: #4ade80;
+  animation: terminal-cursor-blink 950ms steps(2, start) infinite;
+}
+
+.terminal-computer-stand {
+  position: relative;
+  z-index: 0;
+  width: 18%;
+  height: 25px;
+  margin: -1px auto 0;
+  background: linear-gradient(90deg, #263b32, #607568 48%, #263b32);
+  clip-path: polygon(28% 0, 72% 0, 100% 100%, 0 100%);
+}
+
+.terminal-computer-base {
+  position: relative;
+  z-index: 1;
+  width: 44%;
+  height: 9px;
+  margin: 0 auto;
+  border-radius: 3px 3px 10px 10px;
+  background: linear-gradient(180deg, #789184, #263b32);
+}
+
+.terminal-orbit {
+  position: absolute;
+  z-index: -1;
+  display: block;
+  border: 1px solid rgba(74, 222, 128, 0.18);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: terminal-orbit-pulse 5s ease-in-out infinite;
+}
+
+.terminal-orbit-one {
+  width: 95px;
+  height: 95px;
+  top: -12px;
+  inset-inline-end: -13px;
+}
+
+.terminal-orbit-two {
+  width: 52px;
+  height: 52px;
+  bottom: 45px;
+  inset-inline-start: -9px;
+  animation-delay: -2.5s;
+}
+
+@keyframes terminal-line-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes terminal-cursor-blink {
+  0%, 48% { opacity: 1; }
+  49%, 100% { opacity: 0.18; }
+}
+
+@keyframes terminal-orbit-pulse {
+  0%, 100% { transform: scale(0.94); opacity: 0.45; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+
+@media (max-width: 760px) {
+  .hero-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 35px;
+  }
+
+  .hero .container.hero-layout {
+    padding-block: 48px 58px;
+  }
+
+  .hero-terminal {
+    max-width: 470px;
+    width: min(100%, 470px);
+  }
+
+  .terminal-window {
+    transform: none;
+  }
+
+  .terminal-screen {
+    min-height: 220px;
+    font-size: clamp(0.72rem, 2.6vw, 0.88rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .terminal-line {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  .terminal-cursor,
+  .terminal-orbit {
+    animation: none;
+  }
+}
