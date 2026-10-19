@@ -1,7 +1,7 @@
 /* Techima comments UI. Set API_BASE to the deployed Cloudflare Worker URL. */
 (function () {
   "use strict";
-  var API_BASE = "https://REPLACE-WITH-YOUR-WORKER.workers.dev";
+  var API_BASE = "https://techima-comments-api.nimamadadinemati.workers.dev";
   var configured = /^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*\.workers\.dev$/i.test(API_BASE) &&
     API_BASE.indexOf("REPLACE-WITH-YOUR-WORKER") === -1;
   var widgets = document.querySelectorAll("[data-comments-widget]");
