@@ -116,8 +116,24 @@ export default {
     if (!(request.headers.get("Content-Type") || "").toLowerCase().includes("application/json")) {
       return response({ error: "invalid_content_type" }, 415, allowedOrigin);
     }
+    let rawBody;
+    try { rawBody = await request.text(); } catch { return response({ error: "invalid_json" }, 400, allowedOrigin); }
+    if (new TextEncoder().encode(rawBody).byteLength > MAX_BODY_BYTES) return response({ error: "payload_too_large" }, 413, allowedOrigin);
     let input;
-    try { input = await request.json(); } catch { return response({ error: "invalid_json" }, 400, allowedOrigin); }
+    try { input = JSON.parse(rawBody); } catch { return response({ error: "invalid_json" }, 400, allowedOrigin); }
+    if (!input || typeof input !== "object" || Array.isArray(input)) return response({ error: "invalid_payload" }, 400, allowedOrigin);
+    if (env.COMMENT_RATE_LIMIT_KV) {
+      const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+      const key = "comment-rate:" + ip;
+      const now = Date.now();
+      try {
+        let state = await env.COMMENT_RATE_LIMIT_KV.get(key, "json");
+        if (!state || state.resetAt <= now) state = { count: 0, resetAt: now + 900000 };
+        if (state.count >= 5) return response({ error: "rate_limited", retryAfter: Math.ceil((state.resetAt - now) / 1000) }, 429, allowedOrigin);
+        state.count += 1;
+        await env.COMMENT_RATE_LIMIT_KV.put(key, JSON.stringify(state), { expirationTtl: 900 });
+      } catch { return response({ error: "rate_limit_unavailable" }, 503, allowedOrigin); }
+    }
     if (typeof input.website === "string" && input.website.trim()) return response({ ok: true }, 202, allowedOrigin);
     const name = typeof input.name === "string" ? input.name.trim() : "";
     const email = typeof input.email === "string" ? input.email.trim().toLowerCase() : "";
@@ -134,10 +150,10 @@ export default {
     const publicRecord = { id, name, message, createdAt };
     try {
       const privatePath = "submissions/" + createdAt.slice(0, 7) + "/" + id + ".json";
-      await writeRepoFile(env, env.PRIVATE_REPO, privatePath, JSON.stringify(privateRecord, null, 2) + "\n",
-        "Store private Techima comment submission", null);
-      await appendPublicComment(env, publicRecord);
-      return response({ ok: true, comment: publicRecord }, 201, allowedOrigin);
+      await writeRepoFile(env, env.PRIVATE_REPO, privatePath, JSON.stringify({ ...privateRecord, status: "pending" }, null, 2) + "\n",
+        "Store pending private Techima comment submission", null);
+      // Never publish automatically; publication requires a separate owner approval step.
+      return response({ ok: true, pending: true }, 202, allowedOrigin);
     } catch {
       return response({ error: "submission_failed" }, 503, allowedOrigin);
     }
