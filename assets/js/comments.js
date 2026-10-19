@@ -155,13 +155,15 @@
               invalid_name: "نام واردشده معتبر نیست.",
               invalid_email: "ایمیل واردشده معتبر نیست.",
               invalid_message: "متن پیام باید بین ۲ تا ۳۰۰۰ نویسه باشد.",
-              submission_failed: "ثبت پیام انجام نشد. لطفاً بعداً دوباره تلاش کن."
+              submission_failed: "ثبت پیام انجام نشد. لطفاً بعداً دوباره تلاش کن.",
+              rate_limited: "تعداد ارسال‌ها زیاد است؛ لطفاً ۱۵ دقیقه دیگر دوباره تلاش کن.",
+              rate_limit_unavailable: "سرویس محافظت از ارسال موقتاً در دسترس نیست. کمی بعد تلاش کن."
             };
             throw new Error(messages[result.error] || "ثبت پیام ناموفق بود. لطفاً کمی بعد دوباره تلاش کن.");
           }
           form.reset();
           if (counter) counter.textContent = "۰ از ۳۰۰۰";
-          setStatus(widget, "پیامت با موفقیت ثبت شد. ممنون از اینکه برای تکیما نوشتی.", "success");
+          setStatus(widget, "پیامت ثبت شد و پس از بررسی و تأیید مدیر در سایت نمایش داده می‌شود. ممنون از اینکه برای تکیما نوشتی.", "success");
           await loadComments(widget);
         } catch (error) {
           setStatus(widget, error.message || "خطایی رخ داد؛ لطفاً دوباره تلاش کن.", "error");
