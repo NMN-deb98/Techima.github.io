@@ -8,6 +8,38 @@
   var status = document.querySelector("#admin-status");
   var list = document.querySelector("#pending-list");
   var loadButton = document.querySelector("#load-pending");
+  async function enforceAccessGate() {
+    try {
+      var r = await fetch(API_BASE + "/admin/access-check", { method: "GET", headers: { "Accept": "application/json" }, cache: "no-store" });
+      var data = await r.json().catch(function () { return {}; });
+      if (r.status === 429) {
+        document.body.replaceChildren();
+        document.body.style.cssText = "margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#0b1020;color:#f4f7ff;font-family:Tahoma,Arial,sans-serif;direction:rtl;text-align:center";
+        var box = document.createElement("main");
+        box.style.cssText = "max-width:480px;padding:36px 28px;border:1px solid #ffffff24;border-radius:20px;background:#ffffff0a;box-shadow:0 20px 60px #0005";
+        var heading = document.createElement("h1");
+        heading.textContent = "دسترسی موقتاً مسدود است";
+        var message = document.createElement("p");
+        message.style.cssText = "line-height:2;color:#c2cbe0";
+        message.textContent = "به دلیل تلاش‌های ناموفق متعدد، دسترسی این IP به پنل مدیریت کامنت‌ها تا پایان دورهٔ ۵ ساعته مسدود شده است.";
+        box.append(heading, message);
+        document.body.appendChild(box);
+        return false;
+      }
+      if (!r.ok) throw new Error("access_check_failed");
+      document.body.classList.add("admin-access-allowed");
+      return true;
+    } catch (_) {
+      document.body.replaceChildren();
+      document.body.style.cssText = "margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#0b1020;color:#f4f7ff;font-family:Tahoma,Arial,sans-serif;direction:rtl;text-align:center";
+      var msg = document.createElement("p");
+      msg.textContent = "بررسی امنیتی در دسترس نیست؛ برای حفظ امنیت، پنل نمایش داده نشد. چند لحظه دیگر دوباره تلاش کن.";
+      msg.style.cssText = "max-width:460px;line-height:2";
+      document.body.appendChild(msg);
+      return false;
+    }
+  }
+  enforceAccessGate();
   function say(message, kind) {
     status.textContent = message;
     status.dataset.kind = kind || "";
