@@ -20,4 +20,12 @@ services:
       - key: GITHUB_BRANCH
         value: main
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: techima-cms-db
+          property: connectionString
+
+databases:
+  - name: techima-cms-db
+    databaseName: techima_cms
+    user: techima_cms
+    plan: free
