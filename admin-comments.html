@@ -32,11 +32,13 @@
   <main class="admin-wrap">
     <section class="admin-panel">
       <h1>مدیریت دیدگاه‌های تکیما</h1>
-      <p class="admin-note">کامنت‌ها فقط پس از تأیید تو در سایت نمایش داده می‌شوند. توکن مدیریت فقط در همین صفحه و در حافظهٔ فعلی مرورگر استفاده می‌شود و در کد سایت ذخیره نمی‌شود.</p>
-      <label for="admin-token">توکن مدیریت (ADMIN_TOKEN)</label>
+      <p class="admin-note">کامنت‌ها فقط پس از تأیید تو در سایت نمایش داده می‌شوند. برای مدیریت، با نام کاربری و رمز عبور وارد شو. نشست ورود حداکثر ۳۰ دقیقه اعتبار دارد.</p>
+      <label for="admin-username">نام کاربری مدیر</label>
       <div class="admin-login">
-        <input id="admin-token" type="password" autocomplete="current-password" placeholder="توکن مدیریت Cloudflare را وارد کن">
-        <button class="admin-button" id="load-pending" type="button">نمایش کامنت‌های در انتظار</button>
+        <input id="admin-username" type="text" autocomplete="username" placeholder="نام کاربری" required>
+        <input id="admin-password" type="password" autocomplete="current-password" placeholder="رمز عبور" required>
+        <button class="admin-button" id="login-admin" type="button">ورود</button>
+        <button class="admin-button" id="load-pending" type="button" disabled>به‌روزرسانی فهرست</button>
       </div>
       <p class="admin-status" id="admin-status" role="status" aria-live="polite"></p>
       <div class="pending-list" id="pending-list"></div>
