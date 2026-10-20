@@ -160,7 +160,9 @@ def edit_article(article_id=None):
         tags=[x.strip()[:60] for x in request.form.get("tags","").split(",") if x.strip()][:12]
         image=request.form.get("image","").strip()[:1000]; image_alt=request.form.get("image_alt","").strip()[:180]
         status=request.form.get("status","draft")
-        if not SLUG_RE.fullmatch(slug): flash("نامک باید انگلیسی و شامل حروف کوچک، عدد و خط تیره باشد.","error")
+        if article_id and article.status == "published" and status == "draft":
+            flash("تبدیل مقالهٔ منتشرشده به پیش‌نویس هنوز پشتیبانی نمی‌شود؛ برای جلوگیری از صفحهٔ زندهٔ ناخواسته وضعیت را تغییر ندادیم.", "error")
+        elif not SLUG_RE.fullmatch(slug): flash("نامک باید انگلیسی و شامل حروف کوچک، عدد و خط تیره باشد.","error")
         elif not title or not description or not body.strip(): flash("عنوان، توضیح سئو و متن مقاله ضروری هستند.","error")
         elif Article.query.filter(Article.slug==slug,Article.id!=article.id).first(): flash("این نامک قبلاً استفاده شده است.","error")
         elif image and not image.startswith("https://"): flash("آدرس تصویر باید با https:// شروع شود.","error")
