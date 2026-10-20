@@ -1262,3 +1262,9 @@ main { flex: 1 0 auto; }
   .related-article-card { transition: none; }
   .related-article-card:hover { transform: none; }
 }
+
+/* Images inside article listing cards */
+
+.article-feed-thumb { position: absolute; inset: 0; z-index: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
+.article-feed-visual > :not(.article-feed-thumb) { z-index: 1; }
+.article-feed-visual .article-visual-label, .article-feed-visual .article-visual-symbol, .article-feed-visual .article-visual-caption { text-shadow: 0 2px 12px rgb(0 0 0 / 55%); }
