@@ -108,7 +108,11 @@
       });
       var data = await response.json().catch(function () { return {}; });
       if (!response.ok || !data.token) {
-        if (response.status === 503) throw new Error("ورود نام کاربری و رمز عبور هنوز در تنظیمات محرمانهٔ Worker فعال نشده است.");
+        if (response.status === 429) {
+          loginButton.disabled = true;
+          throw new Error("این IP به دلیل ۶ تلاش ناموفق به مدت ۵ ساعت مسدود شده است. درخواست‌های بیشتر پذیرفته نمی‌شوند.");
+        }
+        if (response.status === 503) throw new Error("بررسی امنیتی ورود در دسترس نیست؛ بعداً دوباره امتحان کن.");
         throw new Error(response.status === 401 ? "نام کاربری یا رمز عبور اشتباه است." : "ورود ناموفق بود؛ تنظیمات Worker را بررسی کن.");
       }
       sessionToken = data.token;
@@ -120,7 +124,7 @@
       sessionToken = "";
       say(error.message || "ورود ناموفق بود.", "error");
     } finally {
-      loginButton.disabled = false;
+      if (!/مسدود شده است/.test(statusNode.textContent || "")) loginButton.disabled = false;
     }
   }
   loginButton.addEventListener("click", login);
