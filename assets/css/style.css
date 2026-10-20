@@ -1249,3 +1249,16 @@ main { flex: 1 0 auto; }
   .related-articles-heading { align-items: flex-start; }
   .related-article-card { min-height: 0; }
 }
+
+
+/* Article cards: illustrated thumbnails */
+.related-article-card { overflow: hidden; padding: 0 0 1.15rem; }
+.related-article-card-image { display: block; width: 100%; aspect-ratio: 16 / 9; height: auto; object-fit: cover; background: #0b1d3a; }
+.related-article-card-category, .related-article-card strong, .related-article-card-link { margin-inline: 1.15rem; }
+.related-article-card-category { margin-top: .15rem; }
+.related-article-card strong { margin-top: -.25rem; }
+.related-article-card-link { margin-top: auto; }
+@media (prefers-reduced-motion: reduce) {
+  .related-article-card { transition: none; }
+  .related-article-card:hover { transform: none; }
+}
