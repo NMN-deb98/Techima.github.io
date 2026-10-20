@@ -191,6 +191,15 @@ export default {
       try { return response({ comments: await getPublicComments(env) }, 200, allowedOrigin); }
       catch { return response({ error: "comments_unavailable" }, 503, allowedOrigin); }
     }
+    if (url.pathname === "/admin/access-check" && request.method === "GET") {
+      try {
+        await ensureSecurityTables(env);
+        const hash = await ipHash(request);
+        const blockedUntil = await loginBlockState(env, hash);
+        if (blockedUntil) return response({ error: "login_blocked", retryAfter: Math.ceil((blockedUntil - Date.now()) / 1000) }, 429, allowedOrigin);
+        return response({ ok: true }, 200, allowedOrigin);
+      } catch { return response({ error: "security_check_unavailable" }, 503, allowedOrigin); }
+    }
     if (url.pathname === "/admin/login" && request.method === "POST") {
       if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD || !env.ADMIN_TOKEN) return response({ error: "admin_login_not_configured" }, 503, allowedOrigin);
       let hash;
@@ -216,6 +225,12 @@ export default {
       return response({ ok: true, token, expiresIn: 1800 }, 200, allowedOrigin);
     }
     if (url.pathname.startsWith("/admin/")) {
+      try {
+        await ensureSecurityTables(env);
+        const hash = await ipHash(request);
+        const blockedUntil = await loginBlockState(env, hash);
+        if (blockedUntil) return response({ error: "login_blocked", retryAfter: Math.ceil((blockedUntil - Date.now()) / 1000) }, 429, allowedOrigin);
+      } catch { return response({ error: "security_check_unavailable" }, 503, allowedOrigin); }
       const auth = request.headers.get("Authorization") || "";
       if (!await verifySession(env, auth.startsWith("Bearer ") ? auth.slice(7) : "")) {
         return response({ error: "unauthorized" }, 401, allowedOrigin);
