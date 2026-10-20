@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0b1d3a">
+  <title>مدیریت دیدگاه‌ها | تکیما</title>
+  <link rel="stylesheet" href="/Techima.github.io/assets/css/style.css">
+  <style>
+    .admin-wrap{max-width:850px;margin:0 auto;padding:44px 18px 70px}
+    .admin-panel{background:#fff;border:1px solid #dce5ee;border-radius:18px;padding:22px;box-shadow:0 12px 32px rgba(11,29,58,.07)}
+    .admin-panel h1{margin-top:0;color:#0b1d3a;font-size:1.6rem}
+    .admin-note{color:#526176;line-height:1.9}
+    .admin-login{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+    .admin-login input{flex:1;min-width:220px;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font:inherit}
+    .admin-button{padding:10px 15px;border:0;border-radius:10px;background:#0f766e;color:#fff;font:inherit;font-weight:750;cursor:pointer}
+    .admin-button:disabled{opacity:.6;cursor:wait}
+    .admin-danger{background:#b91c1c}
+    .admin-status{min-height:1.7em;color:#526176}
+    .admin-status[data-kind=success]{color:#047857}.admin-status[data-kind=error]{color:#b91c1c}
+    .pending-list{display:grid;gap:14px;margin-top:20px}
+    .pending-card{padding:18px;border:1px solid #e2e8f0;border-radius:14px;background:#fbfdff}
+    .pending-card h2{margin:0 0 5px;font-size:1.1rem;color:#0b1d3a}
+    .pending-meta{margin:0 0 12px;color:#64748b;font-size:.82rem;overflow-wrap:anywhere}
+    .pending-message{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.9}
+    .pending-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+    .admin-empty{padding:28px;text-align:center;color:#64748b}
+  </style>
+</head>
+<body>
+  <main class="admin-wrap">
+    <section class="admin-panel">
+      <h1>مدیریت دیدگاه‌های تکیما</h1>
+      <p class="admin-note">کامنت‌ها فقط پس از تأیید تو در سایت نمایش داده می‌شوند. توکن مدیریت فقط در همین صفحه و در حافظهٔ فعلی مرورگر استفاده می‌شود و در کد سایت ذخیره نمی‌شود.</p>
+      <label for="admin-token">توکن مدیریت (ADMIN_TOKEN)</label>
+      <div class="admin-login">
+        <input id="admin-token" type="password" autocomplete="current-password" placeholder="توکن مدیریت Cloudflare را وارد کن">
+        <button class="admin-button" id="load-pending" type="button">نمایش کامنت‌های در انتظار</button>
+      </div>
+      <p class="admin-status" id="admin-status" role="status" aria-live="polite"></p>
+      <div class="pending-list" id="pending-list"></div>
+      <p class="admin-note"><a href="/Techima.github.io/">بازگشت به سایت</a></p>
+    </section>
+  </main>
+  <script src="/Techima.github.io/assets/js/admin-comments.js" defer></script>
+</body>
+</html>
