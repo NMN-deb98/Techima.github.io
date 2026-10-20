@@ -80,7 +80,9 @@ function safeEqual(a, b) {
   return diff === 0;
 }
 async function listPending(env) {
-  const root = await githubRequest(env, "/repos/" + env.PRIVATE_REPO + "/contents/submissions?ref=main");
+  let root;
+  try { root = await githubRequest(env, "/repos/" + env.PRIVATE_REPO + "/contents/submissions?ref=main"); }
+  catch (error) { if (error.status === 404) return []; throw error; }
   if (!Array.isArray(root)) return [];
   const publicItems = await getPublicComments(env);
   const publishedIds = new Set(publicItems.map(item => item.id));
