@@ -1,7 +1,10 @@
 (function () {
   "use strict";
   var API_BASE = "https://techima-comments-api.nimamadadinemati.workers.dev";
-  var tokenInput = document.querySelector("#admin-token");
+  var usernameInput = document.querySelector("#admin-username");
+  var passwordInput = document.querySelector("#admin-password");
+  var loginButton = document.querySelector("#login-admin");
+  var sessionToken = "";
   var status = document.querySelector("#admin-status");
   var list = document.querySelector("#pending-list");
   var loadButton = document.querySelector("#load-pending");
@@ -19,11 +22,11 @@
   }
   async function api(path, options) {
     var response = await fetch(API_BASE + path, Object.assign({}, options || {}, {
-      headers: Object.assign({ "Accept": "application/json", "Authorization": "Bearer " + tokenInput.value.trim() }, options && options.headers || {})
+      headers: Object.assign({ "Accept": "application/json", "Authorization": "Bearer " + sessionToken }, options && options.headers || {})
     }));
     var data = await response.json().catch(function () { return {}; });
     if (!response.ok) {
-      if (response.status === 401) throw new Error("توکن مدیریت معتبر نیست یا در Worker تنظیم نشده است.");
+      if (response.status === 401) { sessionToken = ""; throw new Error("نشست ورود منقضی شده یا اطلاعات ورود معتبر نیست؛ دوباره وارد شو."); }
       throw new Error("درخواست انجام نشد. لطفاً تنظیمات Worker و مخزن خصوصی را بررسی کن.");
     }
     return data;
@@ -77,9 +80,9 @@
     }
   }
   async function loadPending() {
-    if (!tokenInput.value.trim()) {
-      say("ابتدا توکن مدیریت را وارد کن.", "error");
-      tokenInput.focus();
+    if (!sessionToken) {
+      say("ابتدا با نام کاربری و رمز عبور وارد شو.", "error");
+      usernameInput.focus();
       return;
     }
     loadButton.disabled = true;
@@ -94,8 +97,37 @@
       loadButton.disabled = false;
     }
   }
+  async function login() {
+    loginButton.disabled = true;
+    say("در حال بررسی اطلاعات ورود…");
+    try {
+      var response = await fetch(API_BASE + "/admin/login", {
+        method: "POST",
+        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ username: usernameInput.value.trim(), password: passwordInput.value })
+      });
+      var data = await response.json().catch(function () { return {}; });
+      if (!response.ok || !data.token) {
+        if (response.status === 503) throw new Error("ورود نام کاربری و رمز عبور هنوز در تنظیمات محرمانهٔ Worker فعال نشده است.");
+        throw new Error(response.status === 401 ? "نام کاربری یا رمز عبور اشتباه است." : "ورود ناموفق بود؛ تنظیمات Worker را بررسی کن.");
+      }
+      sessionToken = data.token;
+      passwordInput.value = "";
+      loadButton.disabled = false;
+      say("ورود موفق بود؛ نشست مدیریت تا ۳۰ دقیقه اعتبار دارد.", "success");
+      await loadPending();
+    } catch (error) {
+      sessionToken = "";
+      say(error.message || "ورود ناموفق بود.", "error");
+    } finally {
+      loginButton.disabled = false;
+    }
+  }
+  loginButton.addEventListener("click", login);
   loadButton.addEventListener("click", loadPending);
-  tokenInput.addEventListener("keydown", function (event) {
-    if (event.key === "Enter") loadPending();
+  [usernameInput, passwordInput].forEach(function (input) {
+    input.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") login();
+    });
   });
 })();
