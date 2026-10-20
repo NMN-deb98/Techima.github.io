@@ -2,7 +2,7 @@ name: Build CMS articles
 
 on:
   push:
-    branches: [main]
+    branches: [main, cms-foundation]
     paths:
       - "content/articles/**"
       - "scripts/build_articles.py"
@@ -23,7 +23,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
@@ -46,5 +46,5 @@ jobs:
             echo "No generated changes."
           else
             git commit -m "Build CMS article pages and sitemap"
-            git push origin HEAD:main
+            git push origin HEAD:${GITHUB_REF_NAME}
           fi
