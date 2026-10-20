@@ -32,7 +32,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install Markdown renderer
-        run: python -m pip install --disable-pip-version-check Markdown
+        run: python -m pip install --disable-pip-version-check Markdown bleach
 
       - name: Build published article pages, index and sitemap
         run: python scripts/build_articles.py
