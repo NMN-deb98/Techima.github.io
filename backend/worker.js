@@ -69,6 +69,35 @@ async function appendPublicComment(env, comment) {
     }
   }
 }
+async function ipHash(request) {
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(ip));
+  return Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, "0")).join("");
+}
+async function ensureSecurityTables(env) {
+  if (!env.DB) throw new Error("security_database_not_configured");
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS comments_login_attempts (ip_hash TEXT PRIMARY KEY, failed_count INTEGER NOT NULL, window_started INTEGER NOT NULL, blocked_until INTEGER NOT NULL DEFAULT 0)").run();
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS comment_rate_limits (ip_hash TEXT PRIMARY KEY, window_started INTEGER NOT NULL, count INTEGER NOT NULL)").run();
+}
+async function loginBlockState(env, hash) {
+  const row = await env.DB.prepare("SELECT blocked_until FROM comments_login_attempts WHERE ip_hash = ?").bind(hash).first();
+  return row && Number(row.blocked_until) > Date.now() ? Number(row.blocked_until) : 0;
+}
+async function recordLoginFailure(env, hash) {
+  const now = Date.now(), windowStart = now - 15 * 60 * 1000, blockedUntil = now + 5 * 60 * 60 * 1000;
+  await env.DB.prepare("INSERT INTO comments_login_attempts (ip_hash, failed_count, window_started, blocked_until) VALUES (?, 1, ?, 0) ON CONFLICT(ip_hash) DO UPDATE SET failed_count = CASE WHEN comments_login_attempts.window_started <= ? THEN 1 ELSE comments_login_attempts.failed_count + 1 END, window_started = CASE WHEN comments_login_attempts.window_started <= ? THEN excluded.window_started ELSE comments_login_attempts.window_started END, blocked_until = CASE WHEN (CASE WHEN comments_login_attempts.window_started <= ? THEN 1 ELSE comments_login_attempts.failed_count + 1 END) >= 6 THEN ? ELSE comments_login_attempts.blocked_until END")
+    .bind(hash, now, windowStart, windowStart, windowStart, blockedUntil).run();
+  const row = await env.DB.prepare("SELECT failed_count, blocked_until FROM comments_login_attempts WHERE ip_hash = ?").bind(hash).first();
+  return row || { failed_count: 1, blocked_until: 0 };
+}
+async function allowCommentSubmission(env, hash) {
+  const now = Date.now(), windowStart = now - 10 * 60 * 1000;
+  await env.DB.prepare("INSERT INTO comment_rate_limits (ip_hash, window_started, count) VALUES (?, ?, 1) ON CONFLICT(ip_hash) DO UPDATE SET count = CASE WHEN comment_rate_limits.window_started <= ? THEN 1 ELSE comment_rate_limits.count + 1 END, window_started = CASE WHEN comment_rate_limits.window_started <= ? THEN excluded.window_started ELSE comment_rate_limits.window_started END")
+    .bind(hash, now, windowStart, windowStart).run();
+  const row = await env.DB.prepare("SELECT count, window_started FROM comment_rate_limits WHERE ip_hash = ?").bind(hash).first();
+  if (!row) throw new Error("rate_limit_unavailable");
+  return { allowed: Number(row.count) <= 3, retryAfter: Math.max(1, Math.ceil((Number(row.window_started) + 10 * 60 * 1000 - now) / 1000)) };
+}
 function validEmail(value) {
   return typeof value === "string" && value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
@@ -164,12 +193,25 @@ export default {
     }
     if (url.pathname === "/admin/login" && request.method === "POST") {
       if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD || !env.ADMIN_TOKEN) return response({ error: "admin_login_not_configured" }, 503, allowedOrigin);
+      let hash;
+      try {
+        await ensureSecurityTables(env);
+        hash = await ipHash(request);
+        const blockedUntil = await loginBlockState(env, hash);
+        if (blockedUntil) return response({ error: "login_blocked", retryAfter: Math.ceil((blockedUntil - Date.now()) / 1000) }, 429, allowedOrigin);
+      } catch { return response({ error: "security_check_unavailable" }, 503, allowedOrigin); }
       const raw = await request.text();
       if (new TextEncoder().encode(raw).byteLength > 2000) return response({ error: "payload_too_large" }, 413, allowedOrigin);
       let input; try { input = JSON.parse(raw); } catch { return response({ error: "invalid_json" }, 400, allowedOrigin); }
       if (!safeEqual(input && input.username, env.ADMIN_USERNAME) || !safeEqual(input && input.password, env.ADMIN_PASSWORD)) {
+        try {
+          const state = await recordLoginFailure(env, hash);
+          if (Number(state.blocked_until) > Date.now()) return response({ error: "login_blocked", retryAfter: Math.ceil((Number(state.blocked_until) - Date.now()) / 1000) }, 429, allowedOrigin);
+        } catch { return response({ error: "security_check_unavailable" }, 503, allowedOrigin); }
         return response({ error: "invalid_credentials" }, 401, allowedOrigin);
       }
+      try { await env.DB.prepare("DELETE FROM comments_login_attempts WHERE ip_hash = ?").bind(hash).run(); }
+      catch { return response({ error: "security_check_unavailable" }, 503, allowedOrigin); }
       const token = await signSession(env, { u: env.ADMIN_USERNAME, exp: Date.now() + 30 * 60 * 1000 });
       return response({ ok: true, token, expiresIn: 1800 }, 200, allowedOrigin);
     }
@@ -213,17 +255,13 @@ export default {
     if (new TextEncoder().encode(rawBody).byteLength > MAX_BODY_BYTES) return response({ error: "payload_too_large" }, 413, allowedOrigin);
     let input; try { input = JSON.parse(rawBody); } catch { return response({ error: "invalid_json" }, 400, allowedOrigin); }
     if (!input || typeof input !== "object" || Array.isArray(input)) return response({ error: "invalid_payload" }, 400, allowedOrigin);
-    if (env.COMMENT_RATE_LIMIT_KV) {
-      const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-      const key = "comment-rate:" + ip; const now = Date.now();
-      try {
-        let state = await env.COMMENT_RATE_LIMIT_KV.get(key, "json");
-        if (!state || state.resetAt <= now) state = { count: 0, resetAt: now + 900000 };
-        if (state.count >= 5) return response({ error: "rate_limited", retryAfter: Math.ceil((state.resetAt - now) / 1000) }, 429, allowedOrigin);
-        state.count += 1; await env.COMMENT_RATE_LIMIT_KV.put(key, JSON.stringify(state), { expirationTtl: 900 });
-      } catch { return response({ error: "rate_limit_unavailable" }, 503, allowedOrigin); }
-    }
     if (typeof input.website === "string" && input.website.trim()) return response({ ok: true }, 202, allowedOrigin);
+    let rate;
+    try {
+      await ensureSecurityTables(env);
+      rate = await allowCommentSubmission(env, await ipHash(request));
+    } catch { return response({ error: "rate_limit_unavailable" }, 503, allowedOrigin); }
+    if (!rate.allowed) return response({ error: "rate_limited", retryAfter: rate.retryAfter }, 429, allowedOrigin);
     const name = typeof input.name === "string" ? input.name.trim() : "";
     const email = typeof input.email === "string" ? input.email.trim().toLowerCase() : "";
     const message = typeof input.message === "string" ? input.message.trim() : "";
