@@ -1220,3 +1220,9 @@ main { flex: 1 0 auto; }
   .article-detail-prose { padding: 21px 18px; }
   .article-detail-byline { font-size: .82rem; }
 }
+
+
+.article-detail-credit { margin: 22px 0 0; padding: 15px 17px; border: 1px solid #e2eaf2; border-radius: 12px; background: #f8fafc; color: #64748b; font-size: .88rem; line-height: 1.9; }
+.article-detail-credit a, .article-detail-byline a { color: var(--teal-700); font-weight: 800; text-decoration: none; }
+.article-detail-credit a:hover, .article-detail-byline a:hover { text-decoration: underline; }
+.article-detail-credit a:focus-visible, .article-detail-byline a:focus-visible { outline: 2px solid var(--teal-500); outline-offset: 3px; border-radius: 3px; }
