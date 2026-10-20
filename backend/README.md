@@ -1,50 +1,45 @@
 # راه‌اندازی امن دیدگاه‌های تکیما
 
-## معماری و حریم خصوصی
-- فرم سایت از Cloudflare Worker درخواست می‌فرستد.
-- Worker ایمیل و اطلاعات کامل را فقط در مخزن **خصوصی** `NMN-deb98/techima-private-feedback` ذخیره می‌کند.
-- فایل `comments.json` در مخزن عمومی سایت فقط شامل `id`، `name`، `message` و `createdAt` است.
-- توکن GitHub هرگز در HTML یا JavaScript سایت قرار نمی‌گیرد.
+## نتیجهٔ این پیاده‌سازی
+- دیدگاه تازه فقط در مخزن خصوصی ذخیره می‌شود و وضعیت آن `pending` است.
+- هیچ دیدگاه تازه‌ای تا تأیید مدیر وارد `comments.json` عمومی نمی‌شود.
+- صفحهٔ مدیریت در `/Techima.github.io/admin-comments.html` فهرست انتظار را نشان می‌دهد و امکان تأیید یا رد دارد.
+- ایمیل فقط در مخزن خصوصی می‌ماند؛ صفحهٔ مدیریت آن را دریافت یا نمایش نمی‌دهد.
+- دیدگاه فعلی که از قبل در `comments.json` عمومی است دست‌نخورده می‌ماند.
 
-## پیش‌نیازهایی که باید یک بار انجام بدهی
+## یک‌بار تنظیم در Cloudflare
+Worker فعلی را با محتوای فایل `backend/worker.js` در شاخهٔ این تغییر جایگزین کن و پس از بررسی Deploy کن.
 
-### 1. ساخت مخزن خصوصی
-در GitHub وارد حساب خودت شو و مخزنی با نام دقیق `techima-private-feedback` بساز. حتماً **Private** را انتخاب کن. GitHub Pages برای آن لازم نیست.
+در Worker → Settings → Variables and Secrets باید این مقادیر وجود داشته باشند:
 
-### 2. ساخت توکن محدود GitHub
-یک Fine-grained personal access token بساز که فقط به این دو مخزن دسترسی داشته باشد:
-- `NMN-deb98/Techima.github.io`
-- `NMN-deb98/techima-private-feedback`
+| نوع | نام | مقدار |
+|---|---|---|
+| Secret | `GITHUB_TOKEN` | Fine-grained token با دسترسی Contents: Read and write فقط به مخزن سایت و مخزن خصوصی |
+| Secret | `ADMIN_TOKEN` | یک رمز تصادفی قوی که خودت می‌سازی؛ این مقدار را در مخزن یا پیام عمومی قرار نده |
+| Variable | `PUBLIC_REPO` | `NMN-deb98/Techima.github.io` |
+| Variable | `PRIVATE_REPO` | `NMN-deb98/techima-private-feedback` |
+| Variable | `ALLOWED_ORIGIN` | `https://nmn-deb98.github.io` |
 
-مجوز **Contents: Read and write** را بده. مجوزهای دیگر یا دسترسی به مخزن‌های دیگر لازم نیست. توکن را در سایت یا فایل‌های مخزن قرار نده.
+اگر مخزن خصوصی را هنوز نساخته‌ای، ابتدا `NMN-deb98/techima-private-feedback` را با دسترسی **Private** بساز. توکن GitHub نباید در HTML یا JavaScript سایت قرار بگیرد. پس از تغییر Secretها، Worker را Deploy کن.
 
-### 3. انتشار Worker در Cloudflare
-در داشبورد Cloudflare، بخش **Workers & Pages** یک Worker جدید بساز. محتوای فایل `backend/worker.js` را در ویرایشگر Worker قرار بده و Deploy کن. سپس در Settings → Variables and Secrets این مقادیر را ثبت کن:
-- **Secret** `GITHUB_TOKEN`: توکن مرحلهٔ قبل
-- **Variable** `PUBLIC_REPO`: `NMN-deb98/Techima.github.io`
-- **Variable** `PRIVATE_REPO`: `NMN-deb98/techima-private-feedback`
-- **Variable** `ALLOWED_ORIGIN`: `https://nmn-deb98.github.io`
+### ساخت ADMIN_TOKEN
+از یک password manager یا مولد رمز امن برای ساخت رشته‌ای تصادفی و بلند استفاده کن. آن را فقط به‌عنوان **Secret** در تنظیمات Cloudflare ذخیره کن. هنگام ورود به صفحهٔ مدیریت، همان مقدار را وارد می‌کنی. صفحه آن را در localStorage ذخیره نمی‌کند.
 
-پس از ذخیرهٔ مقادیر، Worker را دوباره Deploy کن. آدرس آن معمولاً شبیه `https://نام-انتخابی.حساب.workers.dev` است.
+## استفادهٔ روزمره
+1. سایت را باز کن: `https://nmn-deb98.github.io/Techima.github.io/admin-comments.html`
+2. مقدار `ADMIN_TOKEN` را وارد کن و «نمایش کامنت‌های در انتظار» را بزن.
+3. برای انتشار روی «تأیید و نمایش در سایت» کلیک کن. برای نمایش‌ندادن، «رد کردن» را بزن.
+4. پس از تأیید، دیدگاه به `comments.json` عمومی اضافه می‌شود و در سایت نمایش داده خواهد شد.
 
-### 4. وصل کردن سایت به Worker
-در فایل `assets/js/comments.js` مقدار `API_BASE` را به آدرس واقعی Worker تغییر بده؛ فقط دامنه را وارد کن، بدون `/comments`. مثال:
-```js
-var API_BASE = "https://نام-انتخابی.حساب.workers.dev";
-```
-این فایل را Commit کن تا سایت به‌روز شود.
+## آزمایش پس از انتشار
+1. یک دیدگاه آزمایشی از سایت بفرست.
+2. پیش از تأیید، مطمئن شو در صفحهٔ عمومی دیده نمی‌شود.
+3. صفحهٔ مدیریت را باز کن؛ دیدگاه باید در فهرست انتظار باشد.
+4. آن را تأیید کن و صفحهٔ اصلی را دوباره بارگذاری کن؛ حالا باید نمایش داده شود.
+5. در مخزن خصوصی بررسی کن که ایمیل فقط در فایل همان ارسال وجود داشته باشد.
 
-## آزمایش
-1. آدرس Worker را در مرورگر باز کن و انتهایش `/comments` بگذار. باید JSON با فهرست پیام‌ها برگردد.
-2. از سایت یک پیام آزمایشی با ایمیل خودت بفرست.
-3. بررسی کن که نام و متن در سایت و فایل عمومی `comments.json` دیده شوند.
-4. در مخزن **خصوصی** `techima-private-feedback` مسیر `submissions/YYYY-MM/` را باز کن و مطمئن شو ایمیل فقط همان‌جا ثبت شده است.
-
-## نکات امنیتی
-- دیدگاه‌های تازه باید در مخزن خصوصی با وضعیت `pending` بمانند و تا زمان پیاده‌سازی مسیر تأیید مدیر نباید دستی به `comments.json` عمومی افزوده شوند.
-- برای فعال‌کردن محدودیت نرخ، در Cloudflare یک KV namespace بساز و آن را با binding نام `COMMENT_RATE_LIMIT_KV` به Worker وصل کن. در صورت اتصال، کد فعلی حداکثر ۵ ارسال برای هر IP در هر ۱۵ دقیقه را مجاز می‌کند؛ بدون این binding، rate limiting فعال نیست.
-- متن دیدگاه با `textContent` نمایش داده می‌شود تا HTML یا اسکریپت ارسالی اجرا نشود.
-- فرم محدودیت طول، اعتبارسنجی سمت سرور، بررسی Origin و فیلد ضدربات دارد.
-- برای مقابله قوی‌تر با هرزنامه، Cloudflare Turnstile را نیز پیکربندی کن. rate limiting در Worker فقط پس از اتصال binding به نام `COMMENT_RATE_LIMIT_KV` فعال می‌شود.
-- ایمیل‌ها در مخزن خصوصی در تاریخچه Git باقی می‌مانند؛ حذف فایل لزوماً تاریخچه را پاک نمی‌کند.
-- تا وقتی Worker منتشر و `API_BASE` تنظیم نشده باشد، فرم عمداً ارسال را غیرفعال نشان می‌دهد.
+## محافظت بیشتر
+- در صورت امکان، یک Cloudflare KV namespace با binding نام `COMMENT_RATE_LIMIT_KV` وصل کن؛ Worker با آن حداکثر ۵ ارسال در هر ۱۵ دقیقه برای هر IP را مجاز می‌کند.
+- متن کاربر با `textContent` در DOM قرار می‌گیرد تا HTML یا اسکریپت اجرا نشود.
+- مخزن خصوصی اطلاعات را در تاریخچهٔ Git نگه می‌دارد؛ حذف فایل به‌تنهایی تاریخچه را پاک نمی‌کند.
+- تا زمانی که نسخهٔ جدید Worker را Deploy نکرده‌ای، تغییرات شاخهٔ GitHub به‌تنهایی رفتار سرویس آنلاین را عوض نمی‌کنند.
