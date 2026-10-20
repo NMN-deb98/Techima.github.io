@@ -1,23 +1,23 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://nmn-deb98.github.io/Techima.github.io/</loc>
-    <lastmod>2026-10-18</lastmod>
-  </url>
-  <url>
-    <loc>https://nmn-deb98.github.io/Techima.github.io/about/</loc>
-    <lastmod>2026-10-18</lastmod>
-  </url>
-  <url>
-    <loc>https://nmn-deb98.github.io/Techima.github.io/projects/</loc>
-    <lastmod>2026-10-18</lastmod>
-  </url>
-  <url>
-    <loc>https://nmn-deb98.github.io/Techima.github.io/articles/</loc>
-    <lastmod>2026-10-18</lastmod>
-  </url>
-  <url>
-    <loc>https://nmn-deb98.github.io/Techima.github.io/contact/</loc>
-    <lastmod>2026-10-18</lastmod>
-  </url>
-</urlset>
+<?xml version='1.0' encoding='utf-8'?>
+<ns0:urlset xmlns:ns0="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <ns0:url>
+    <ns0:loc>https://nmn-deb98.github.io/Techima.github.io/</ns0:loc>
+    <ns0:lastmod>2026-10-18</ns0:lastmod>
+  </ns0:url>
+  <ns0:url>
+    <ns0:loc>https://nmn-deb98.github.io/Techima.github.io/about/</ns0:loc>
+    <ns0:lastmod>2026-10-18</ns0:lastmod>
+  </ns0:url>
+  <ns0:url>
+    <ns0:loc>https://nmn-deb98.github.io/Techima.github.io/projects/</ns0:loc>
+    <ns0:lastmod>2026-10-18</ns0:lastmod>
+  </ns0:url>
+  <ns0:url>
+    <ns0:loc>https://nmn-deb98.github.io/Techima.github.io/articles/</ns0:loc>
+    <ns0:lastmod>2026-10-18</ns0:lastmod>
+  </ns0:url>
+  <ns0:url>
+    <ns0:loc>https://nmn-deb98.github.io/Techima.github.io/contact/</ns0:loc>
+    <ns0:lastmod>2026-10-18</ns0:lastmod>
+  </ns0:url>
+</ns0:urlset>
