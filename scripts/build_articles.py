@@ -219,6 +219,8 @@ def render_article(article: dict) -> str:
 
 def update_articles_index(articles: list[dict]) -> None:
     current = INDEX_PATH.read_text(encoding="utf-8")
+    if not articles and MARKER_START not in current:
+        return
     cards = [MARKER_START, '<section class="section" aria-labelledby="cms-articles-title"><div class="container">',
              '<h2 id="cms-articles-title">نوشته‌های منتشرشده</h2>',
              '<div class="card-grid">']
