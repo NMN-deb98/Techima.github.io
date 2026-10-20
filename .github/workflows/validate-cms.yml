@@ -1,0 +1,29 @@
+name: Validate CMS changes
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "cms-app/**"
+      - "scripts/build_articles.py"
+      - "content/articles/**"
+      - ".github/workflows/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install CMS dependencies
+        run: python -m pip install --disable-pip-version-check -r cms-app/requirements.txt
+      - name: Compile Python sources
+        run: python -m py_compile cms-app/app.py cms-app/test_smoke.py scripts/build_articles.py
+      - name: Run smoke tests
+        run: python -m unittest discover -s cms-app -p 'test_*.py'

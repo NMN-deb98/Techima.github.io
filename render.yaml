@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: techima-cms
+    runtime: python
+    rootDir: cms-app
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 60
+    healthCheckPath: /health
+    envVars:
+      - key: FLASK_SECRET_KEY
+        generateValue: true
+      - key: CMS_USERNAME
+        sync: false
+      - key: CMS_PASSWORD_HASH
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_REPO
+        value: NMN-deb98/Techima.github.io
+      - key: GITHUB_BRANCH
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: techima-cms-db
+          property: connectionString
+
+databases:
+  - name: techima-cms-db
+    databaseName: techima_cms
+    user: techima_cms
+    plan: free
