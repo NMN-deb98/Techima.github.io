@@ -124,7 +124,7 @@
       sessionToken = "";
       say(error.message || "ورود ناموفق بود.", "error");
     } finally {
-      if (!/مسدود شده است/.test(statusNode.textContent || "")) loginButton.disabled = false;
+      if (!/مسدود شده است/.test(status.textContent || "")) loginButton.disabled = false;
     }
   }
   loginButton.addEventListener("click", login);
