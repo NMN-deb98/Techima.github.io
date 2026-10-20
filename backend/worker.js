@@ -1,7 +1,7 @@
 /**
  * Techima comments API — Cloudflare Worker.
  * Public submissions are private/pending until an authenticated admin approves them.
- * Secrets: GITHUB_TOKEN, ADMIN_TOKEN. Variables: PUBLIC_REPO, PRIVATE_REPO, ALLOWED_ORIGIN.
+ * Secrets: GITHUB_TOKEN, ADMIN_TOKEN, ADMIN_USERNAME, ADMIN_PASSWORD. Variables: PUBLIC_REPO, PRIVATE_REPO, ALLOWED_ORIGIN.
  */
 const API = "https://api.github.com";
 const MAX_BODY_BYTES = 12000;
@@ -79,6 +79,33 @@ function safeEqual(a, b) {
   for (let i = 0; i < length; i += 1) diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
   return diff === 0;
 }
+function base64UrlEncode(bytes) {
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 1) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+}
+function base64UrlDecode(value) {
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+  const binary = atob(normalized + "=".repeat((4 - normalized.length % 4) % 4));
+  return Uint8Array.from(binary, ch => ch.charCodeAt(0));
+}
+async function signSession(env, payload) {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.ADMIN_TOKEN), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const encoded = base64UrlEncode(new TextEncoder().encode(JSON.stringify(payload)));
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(encoded));
+  return encoded + "." + base64UrlEncode(new Uint8Array(signature));
+}
+async function verifySession(env, token) {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 2 || !env.ADMIN_TOKEN) return false;
+    const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.ADMIN_TOKEN), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]);
+    const valid = await crypto.subtle.verify("HMAC", key, base64UrlDecode(parts[1]), new TextEncoder().encode(parts[0]));
+    if (!valid) return false;
+    const payload = JSON.parse(new TextDecoder().decode(base64UrlDecode(parts[0])));
+    return payload && payload.exp > Date.now() && payload.u === env.ADMIN_USERNAME;
+  } catch { return false; }
+}
 async function listPending(env) {
   let root;
   try { root = await githubRequest(env, "/repos/" + env.PRIVATE_REPO + "/contents/submissions?ref=main"); }
@@ -135,9 +162,20 @@ export default {
       try { return response({ comments: await getPublicComments(env) }, 200, allowedOrigin); }
       catch { return response({ error: "comments_unavailable" }, 503, allowedOrigin); }
     }
+    if (url.pathname === "/admin/login" && request.method === "POST") {
+      if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD || !env.ADMIN_TOKEN) return response({ error: "admin_login_not_configured" }, 503, allowedOrigin);
+      const raw = await request.text();
+      if (new TextEncoder().encode(raw).byteLength > 2000) return response({ error: "payload_too_large" }, 413, allowedOrigin);
+      let input; try { input = JSON.parse(raw); } catch { return response({ error: "invalid_json" }, 400, allowedOrigin); }
+      if (!safeEqual(input && input.username, env.ADMIN_USERNAME) || !safeEqual(input && input.password, env.ADMIN_PASSWORD)) {
+        return response({ error: "invalid_credentials" }, 401, allowedOrigin);
+      }
+      const token = await signSession(env, { u: env.ADMIN_USERNAME, exp: Date.now() + 30 * 60 * 1000 });
+      return response({ ok: true, token, expiresIn: 1800 }, 200, allowedOrigin);
+    }
     if (url.pathname.startsWith("/admin/")) {
       const auth = request.headers.get("Authorization") || "";
-      if (!env.ADMIN_TOKEN || !safeEqual(auth.startsWith("Bearer ") ? auth.slice(7) : "", env.ADMIN_TOKEN)) {
+      if (!await verifySession(env, auth.startsWith("Bearer ") ? auth.slice(7) : "")) {
         return response({ error: "unauthorized" }, 401, allowedOrigin);
       }
       if (url.pathname === "/admin/comments" && request.method === "GET") {
