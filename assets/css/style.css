@@ -650,6 +650,15 @@ main { flex: 1 0 auto; }
     gap: 35px;
   }
 
+  /* در موبایل ابتدا نمایشگر رایانه و سپس متن معرفی دیده شود. */
+  .hero-terminal {
+    order: -1;
+  }
+
+  .hero-copy {
+    order: 0;
+  }
+
   .hero .container.hero-layout {
     padding-block: 48px 58px;
   }
