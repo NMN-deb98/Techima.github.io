@@ -1426,3 +1426,55 @@ main { flex: 1 0 auto; }
   .home-landing-tile, .home-landing-icon, .home-landing-tile::before, .home-landing-tile::after { transition: none; }
   .home-landing-tile:hover, .home-landing-tile:hover .home-landing-icon { transform: none; }
 }
+
+
+/* 3D landing-card redesign: raised icon sculptures, beveled edges, and real depth cues */
+.home-landing-grid { perspective: 1400px; gap: 18px; }
+.home-landing-tile {
+  min-height: 205px;
+  border-radius: 24px;
+  background: linear-gradient(150deg, #172957 0%, #101b3b 58%, #0b1530 100%);
+  border: 1px solid color-mix(in srgb, var(--tile-glow, #38d9ff) 55%, transparent);
+  box-shadow: 0 10px 0 -3px color-mix(in srgb, var(--tile-glow, #38d9ff) 42%, #10152c),
+    0 23px 30px rgba(0,0,0,.23), inset 0 1px 0 rgba(255,255,255,.3),
+    inset 0 -8px 18px rgba(0,0,0,.2);
+  transform-style: preserve-3d;
+}
+.home-landing-icon {
+  width: 96px; height: 96px; border-radius: 27px;
+  transform: translateZ(24px) rotate(-4deg);
+  background: linear-gradient(145deg,
+    color-mix(in srgb, var(--tile-glow, #38d9ff) 58%, white),
+    color-mix(in srgb, var(--tile-glow, #38d9ff) 68%, #171b48) 55%,
+    #141a38);
+  border: 1px solid color-mix(in srgb, var(--tile-glow, #38d9ff) 82%, white);
+  box-shadow: 0 8px 0 color-mix(in srgb, var(--tile-glow, #38d9ff) 52%, #11172d),
+    0 16px 20px rgba(0,0,0,.38), inset 0 2px 0 rgba(255,255,255,.55),
+    inset 0 -7px 12px rgba(0,0,0,.25);
+  transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease;
+}
+.home-landing-icon svg {
+  width: 66px; height: 66px;
+  filter: drop-shadow(0 6px 3px rgba(0,0,0,.42));
+}
+.home-landing-tile strong { transform: translateZ(10px); color: #f8fbff; }
+.home-landing-tile:hover {
+  transform: translateY(-8px) rotateX(3deg);
+  box-shadow: 0 13px 0 -3px color-mix(in srgb, var(--tile-glow, #38d9ff) 52%, #10152c),
+    0 33px 42px rgba(0,0,0,.33), 0 0 25px color-mix(in srgb, var(--tile-glow, #38d9ff) 20%, transparent),
+    inset 0 1px 0 rgba(255,255,255,.36);
+}
+.home-landing-tile:hover .home-landing-icon {
+  transform: translateZ(38px) translateY(-5px) rotate(0deg) scale(1.07);
+  box-shadow: 0 10px 0 color-mix(in srgb, var(--tile-glow, #38d9ff) 52%, #11172d),
+    0 23px 28px rgba(0,0,0,.42), inset 0 2px 0 rgba(255,255,255,.6),
+    inset 0 -7px 12px rgba(0,0,0,.2);
+}
+@media (max-width: 560px) {
+  .home-landing-tile { min-height: 170px; }
+  .home-landing-icon { width: 76px; height: 76px; border-radius: 22px; }
+  .home-landing-icon svg { width: 53px; height: 53px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-landing-tile:hover, .home-landing-tile:hover .home-landing-icon { transform: none; }
+}
