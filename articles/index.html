@@ -141,11 +141,12 @@
           <span class="article-eyebrow">یادداشت‌ها و تجربه‌ها</span>
           <h2 id="articles-intro-title">ایده‌ها، تجربه‌ها و چیزهایی که یاد می‌گیرم</h2>
           <p>در این صفحه، نوشته‌های مربوط به سئو، توسعه وب، تولید محتوا و مسیر یادگیری من به‌ترتیب در یک جریان پیوسته نمایش داده می‌شوند. با اسکرول کردن، نوشته‌های بیشتری را می‌بینی.</p>
-          <div class="article-timeline-topics" aria-label="موضوعات مقالات">
-            <span>سئو و بهینه‌سازی</span>
-            <span>برنامه‌نویسی وب</span>
-            <span>تولید محتوا</span>
-            <span>یادگیری و تجربه</span>
+          <div class="article-category-filters" role="group" aria-label="فیلتر دسته‌بندی مقالات">
+            <button type="button" class="article-category-filter is-active" data-filter="all" aria-pressed="true">همه مقاله‌ها</button>
+            <button type="button" class="article-category-filter" data-filter="seo" aria-pressed="false">سئو و بهینه‌سازی</button>
+            <button type="button" class="article-category-filter" data-filter="web" aria-pressed="false">برنامه‌نویسی وب</button>
+            <button type="button" class="article-category-filter" data-filter="content" aria-pressed="false">تولید محتوا</button>
+            <button type="button" class="article-category-filter" data-filter="learning" aria-pressed="false">یادگیری و تجربه</button>
           </div>
         </div>
 
@@ -166,7 +167,7 @@
                 <span>شروع مسیر</span>
               </div>
 
-              <a class="article-feed-card article-feed-link" href="/Techima.github.io/articles/seo-technical-checklist/" aria-label="خواندن مقاله از کجا سئوی تکنیکال یک سایت را شروع کنیم؟">
+              <a class="article-feed-card article-feed-link" href="/Techima.github.io/articles/seo-technical-checklist/" data-category="seo" aria-label="خواندن مقاله از کجا سئوی تکنیکال یک سایت را شروع کنیم؟">
                 <div class="article-feed-visual article-visual-seo" aria-hidden="true"><img class="article-feed-thumb" src="/Techima.github.io/assets/images/article-seo.svg" alt="تصویر گرافیکی بررسی سئوی تکنیکال، نمودار رشد و ذره‌بین" width="800" height="450" loading="lazy" decoding="async">
                   <span class="article-visual-label">SEO</span>
                   <span class="article-visual-symbol">⌕</span>
@@ -180,7 +181,7 @@
                 </div>
               </a>
 
-              <a class="article-feed-card article-feed-link" href="/Techima.github.io/articles/publish-personal-site-github-pages/" aria-label="خواندن مقاله ساخت و انتشار سایت شخصی با GitHub Pages">
+              <a class="article-feed-card article-feed-link" href="/Techima.github.io/articles/publish-personal-site-github-pages/" data-category="web" aria-label="خواندن مقاله ساخت و انتشار سایت شخصی با GitHub Pages">
                 <div class="article-feed-visual article-visual-web" aria-hidden="true"><img class="article-feed-thumb" src="/Techima.github.io/assets/images/article-github-pages.svg" alt="تصویر گرافیکی ساخت و انتشار سایت با کدنویسی و پنجره مرورگر" width="800" height="450" loading="lazy" decoding="async">
                   <span class="article-visual-label">WEB</span>
                   <span class="article-visual-symbol">{ }</span>
@@ -194,7 +195,7 @@
                 </div>
               </a>
 
-              <a class="article-feed-card article-feed-link" href="/Techima.github.io/articles/write-useful-readable-article/" aria-label="خواندن مقاله چطور مقاله‌ای کاربردی و خواندنی بنویسیم؟">
+              <a class="article-feed-card article-feed-link" href="/Techima.github.io/articles/write-useful-readable-article/" data-category="content" aria-label="خواندن مقاله چطور مقاله‌ای کاربردی و خواندنی بنویسیم؟">
                 <div class="article-feed-visual article-visual-content" aria-hidden="true"><img class="article-feed-thumb" src="/Techima.github.io/assets/images/article-content-writing.svg" alt="تصویر گرافیکی نگارش مقاله با صفحه متن و قلم" width="800" height="450" loading="lazy" decoding="async">
                   <span class="article-visual-label">CONTENT</span>
                   <span class="article-visual-symbol">✎</span>
@@ -256,5 +257,23 @@
     </div>
   </footer>
   <script src="/Techima.github.io/assets/js/main.js" defer></script>
-</body>
+
+  <script>
+    (() => {
+      const filters = document.querySelectorAll('.article-category-filter');
+      const cards = document.querySelectorAll('.article-feed-card[data-category]');
+      filters.forEach((button) => button.addEventListener('click', () => {
+        const category = button.dataset.filter;
+        filters.forEach((item) => {
+          const active = item === button;
+          item.classList.toggle('is-active', active);
+          item.setAttribute('aria-pressed', String(active));
+        });
+        cards.forEach((card) => {
+          card.hidden = category !== 'all' && card.dataset.category !== category;
+        });
+      }));
+    })();
+  </script>
+  </body>
 </html>
