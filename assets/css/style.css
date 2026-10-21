@@ -1392,15 +1392,45 @@ main { flex: 1 0 auto; }
   outline-offset: 3px;
 }
 .home-landing-icon {
+  position: relative;
   display: grid;
-  width: 52px;
-  height: 52px;
+  width: 66px;
+  height: 66px;
   place-items: center;
-  border-radius: 15px;
-  color: var(--teal-300, #5eead4);
-  background: rgba(20,184,166,.12);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgba(255,255,255,.13), rgba(255,255,255,.025));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 8px 22px rgba(0,0,0,.16);
+  transition: transform .22s ease, box-shadow .22s ease;
 }
-.home-landing-icon svg { width: 26px; height: 26px; }
+.home-landing-icon::before {
+  content: "";
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .07;
+  filter: blur(2px);
+}
+.home-landing-icon svg {
+  position: relative;
+  z-index: 1;
+  width: 42px;
+  height: 42px;
+  overflow: visible;
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,.12));
+}
+.home-landing-tile:nth-child(1) .home-landing-icon { color: #67e8f9; background-color: rgba(34,211,238,.12); }
+.home-landing-tile:nth-child(2) .home-landing-icon { color: #a5b4fc; background-color: rgba(129,140,248,.13); }
+.home-landing-tile:nth-child(3) .home-landing-icon { color: #fcd34d; background-color: rgba(251,191,36,.12); }
+.home-landing-tile:nth-child(4) .home-landing-icon { color: #f9a8d4; background-color: rgba(236,72,153,.12); }
+.home-landing-tile:nth-child(5) .home-landing-icon { color: #6ee7b7; background-color: rgba(16,185,129,.12); }
+.home-landing-tile:hover .home-landing-icon {
+  transform: translateY(-2px) rotate(-3deg) scale(1.04);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 12px 26px rgba(0,0,0,.2);
+}
 .home-landing-tile strong { font-size: 1rem; line-height: 1.5; }
 @media (max-width: 900px) {
   .home-landing-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -1408,9 +1438,10 @@ main { flex: 1 0 auto; }
 @media (max-width: 560px) {
   .home-landing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .home-landing-tile { min-height: 124px; padding: 14px 8px; border-radius: 15px; }
-  .home-landing-icon { width: 46px; height: 46px; border-radius: 13px; }
+  .home-landing-icon { width: 56px; height: 56px; border-radius: 17px; }
+  .home-landing-icon svg { width: 36px; height: 36px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .home-landing-tile { transition: none; }
+  .home-landing-tile, .home-landing-icon { transition: none; }
   .home-landing-tile:hover { transform: none; }
 }
