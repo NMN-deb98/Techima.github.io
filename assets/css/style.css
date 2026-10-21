@@ -390,10 +390,10 @@ main { flex: 1 0 auto; }
 @media (max-width: 720px) {
   body { font-size: 1rem; }
   .header-inner { justify-content: center; }
-  .main-nav { width: 100%; overflow-x: auto; }
+  .main-nav { width: 100%; min-width: 0; overflow: visible; }
   .header-inner { padding-inline: 12px; }
-  .main-nav ul { justify-content: center; flex-wrap: nowrap; gap: 2px; }
-  .main-nav a { padding: 6px 8px; font-size: 0.88rem; white-space: nowrap; }
+  .main-nav ul { justify-content: center; flex-wrap: wrap; gap: 6px; }
+  .main-nav a { padding: 6px 10px; font-size: 0.88rem; white-space: normal; }
   .hero .container { padding-block: 52px 58px; }
   .section { padding-block: 40px; }
   .prose { padding: 22px; }
@@ -1354,4 +1354,60 @@ main { flex: 1 0 auto; }
 }
 @media (prefers-reduced-motion: reduce) {
   .article-feed-card, .article-feed-card:hover { transition: none; transform: none; }
+}
+
+
+/* Homepage navigation: clear, icon-led landing tiles */
+.home-page .main-nav ul {
+  align-items: stretch;
+  gap: 8px;
+}
+.home-page .main-nav li { display: flex; }
+.home-page .main-nav a {
+  display: flex;
+  min-width: 88px;
+  min-height: 76px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 16px;
+  background: rgba(255,255,255,.055);
+  text-align: center;
+  line-height: 1.45;
+}
+.home-page .main-nav a::before {
+  display: block;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--teal-300);
+}
+.home-page .main-nav a[href="/Techima.github.io/"]::before { content: "⌂"; }
+.home-page .main-nav a[href="/Techima.github.io/about/"]::before { content: "♙"; }
+.home-page .main-nav a[href="/Techima.github.io/projects/"]::before { content: "▣"; }
+.home-page .main-nav a[href="/Techima.github.io/articles/"]::before { content: "▤"; }
+.home-page .main-nav a[href="/Techima.github.io/videos/"]::before { content: "▷"; }
+.home-page .main-nav a[href="/Techima.github.io/contact/"]::before { content: "✉"; }
+.home-page .main-nav a:hover {
+  transform: translateY(-2px);
+  border-color: rgba(94,234,212,.55);
+  background: rgba(255,255,255,.11);
+}
+.home-page .main-nav a[aria-current="page"]::before { color: var(--navy-950); }
+@media (max-width: 720px) {
+  .home-page .main-nav ul { flex-wrap: wrap; gap: 7px; }
+  .home-page .main-nav li { flex: 1 1 calc(33.333% - 7px); min-width: 0; }
+  .home-page .main-nav a {
+    width: 100%;
+    min-width: 0;
+    min-height: 72px;
+    padding: 9px 5px;
+    border-radius: 14px;
+    font-size: .84rem;
+  }
+}
+@media (max-width: 360px) {
+  .home-page .main-nav li { flex-basis: calc(50% - 7px); }
 }
