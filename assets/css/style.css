@@ -1366,82 +1366,63 @@ main { flex: 1 0 auto; }
   gap: 14px;
 }
 .home-landing-tile {
-  display: flex;
-  min-height: 142px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 18px 12px;
-  color: var(--text, #e8eefb);
-  text-align: center;
-  text-decoration: none;
-  background: var(--surface, rgba(255,255,255,.045));
-  border: 1px solid var(--border, rgba(255,255,255,.12));
-  border-radius: 18px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.08);
-  transition: transform .18s ease, border-color .18s ease, background .18s ease;
+  position: relative; isolation: isolate; display: flex; min-height: 158px;
+  flex-direction: column; align-items: center; justify-content: center; gap: 13px;
+  padding: 20px 14px 18px; overflow: hidden; color: var(--text, #e8eefb);
+  text-align: center; text-decoration: none;
+  background: linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,255,255,.025) 72%);
+  border: 1px solid rgba(148,163,184,.22); border-radius: 24px;
+  box-shadow: 0 10px 28px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.09);
+  transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease, background .24s ease;
 }
+.home-landing-tile::before {
+  content: ""; position: absolute; z-index: -1; width: 145px; height: 145px; top: -75px;
+  inset-inline-end: -60px; border-radius: 50%; background: var(--tile-glow, #67e8f9);
+  opacity: .12; filter: blur(24px); transition: opacity .24s ease, transform .24s ease;
+}
+.home-landing-tile::after {
+  content: "↗"; position: absolute; top: 13px; inset-inline-end: 15px;
+  color: var(--tile-glow, #67e8f9); font-size: 1rem; opacity: .7;
+  transform: translate(-2px, 2px); transition: transform .24s ease, opacity .24s ease;
+}
+.home-landing-tile:nth-child(1) { --tile-glow: #67e8f9; }
+.home-landing-tile:nth-child(2) { --tile-glow: #a5b4fc; }
+.home-landing-tile:nth-child(3) { --tile-glow: #fcd34d; }
+.home-landing-tile:nth-child(4) { --tile-glow: #f9a8d4; }
+.home-landing-tile:nth-child(5) { --tile-glow: #6ee7b7; }
 .home-landing-tile:hover {
-  transform: translateY(-3px);
-  border-color: rgba(94,234,212,.65);
-  background: rgba(255,255,255,.075);
+  transform: translateY(-5px); border-color: var(--tile-glow);
+  background: linear-gradient(145deg, rgba(255,255,255,.13), rgba(255,255,255,.04) 72%);
+  box-shadow: 0 18px 38px rgba(0,0,0,.19), inset 0 1px 0 rgba(255,255,255,.13);
 }
-.home-landing-tile:focus-visible {
-  outline: 3px solid var(--teal-300, #5eead4);
-  outline-offset: 3px;
-}
+.home-landing-tile:hover::before { opacity: .22; transform: scale(1.18); }
+.home-landing-tile:hover::after { opacity: 1; transform: translate(0,0); }
+.home-landing-tile:focus-visible { outline: 3px solid var(--tile-glow, #5eead4); outline-offset: 4px; }
 .home-landing-icon {
-  position: relative;
-  display: grid;
-  width: 66px;
-  height: 66px;
-  place-items: center;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,.16);
-  border-radius: 20px;
-  background: linear-gradient(145deg, rgba(255,255,255,.13), rgba(255,255,255,.025));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 8px 22px rgba(0,0,0,.16);
-  transition: transform .22s ease, box-shadow .22s ease;
+  position: relative; display: grid; width: 76px; height: 76px; place-items: center; overflow: visible;
+  border: 1px solid rgba(255,255,255,.18); border-radius: 24px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--tile-glow, #67e8f9) 18%, transparent), rgba(255,255,255,.025));
+  box-shadow: 0 8px 22px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.16);
+  transition: transform .24s cubic-bezier(.2,.8,.2,1), box-shadow .24s ease;
 }
 .home-landing-icon::before {
-  content: "";
-  position: absolute;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: .07;
-  filter: blur(2px);
+  content: ""; position: absolute; inset: 5px; border-radius: 19px;
+  background: radial-gradient(circle at 25% 15%, rgba(255,255,255,.15), transparent 65%); pointer-events: none;
 }
-.home-landing-icon svg {
-  position: relative;
-  z-index: 1;
-  width: 42px;
-  height: 42px;
-  overflow: visible;
-  filter: drop-shadow(0 2px 5px rgba(0,0,0,.12));
-}
-.home-landing-tile:nth-child(1) .home-landing-icon { color: #67e8f9; background-color: rgba(34,211,238,.12); }
-.home-landing-tile:nth-child(2) .home-landing-icon { color: #a5b4fc; background-color: rgba(129,140,248,.13); }
-.home-landing-tile:nth-child(3) .home-landing-icon { color: #fcd34d; background-color: rgba(251,191,36,.12); }
-.home-landing-tile:nth-child(4) .home-landing-icon { color: #f9a8d4; background-color: rgba(236,72,153,.12); }
-.home-landing-tile:nth-child(5) .home-landing-icon { color: #6ee7b7; background-color: rgba(16,185,129,.12); }
-.home-landing-tile:hover .home-landing-icon {
-  transform: translateY(-2px) rotate(-3deg) scale(1.04);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 12px 26px rgba(0,0,0,.2);
-}
+.home-landing-icon svg { position: relative; z-index: 1; width: 54px; height: 54px; overflow: visible; filter: drop-shadow(0 4px 7px rgba(0,0,0,.14)); }
+.home-landing-tile:hover .home-landing-icon { transform: translateY(-3px) rotate(-2deg) scale(1.06); box-shadow: 0 14px 28px rgba(0,0,0,.17); }
 .home-landing-tile strong { font-size: 1rem; line-height: 1.5; }
 @media (max-width: 900px) {
   .home-landing-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 560px) {
   .home-landing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .home-landing-tile { min-height: 124px; padding: 14px 8px; border-radius: 15px; }
-  .home-landing-icon { width: 56px; height: 56px; border-radius: 17px; }
-  .home-landing-icon svg { width: 36px; height: 36px; }
+  .home-landing-tile { min-height: 138px; padding: 17px 8px 14px; border-radius: 19px; gap: 10px; }
+  .home-landing-tile::after { top: 10px; inset-inline-end: 11px; font-size: .9rem; }
+  .home-landing-icon { width: 64px; height: 64px; border-radius: 20px; }
+  .home-landing-icon svg { width: 46px; height: 46px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .home-landing-tile, .home-landing-icon { transition: none; }
-  .home-landing-tile:hover { transform: none; }
+  .home-landing-tile, .home-landing-icon, .home-landing-tile::before, .home-landing-tile::after { transition: none; }
+  .home-landing-tile:hover, .home-landing-tile:hover .home-landing-icon { transform: none; }
 }
