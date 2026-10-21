@@ -1357,57 +1357,60 @@ main { flex: 1 0 auto; }
 }
 
 
-/* Homepage navigation: clear, icon-led landing tiles */
-.home-page .main-nav ul {
-  align-items: stretch;
-  gap: 8px;
+/* Homepage landing shortcuts live in the page body, not in the header navigation. */
+.home-landing-shortcuts { padding-top: clamp(1.5rem, 3vw, 2.5rem); }
+.home-landing-shortcuts .home-section-heading { margin-bottom: 1.25rem; }
+.home-landing-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
 }
-.home-page .main-nav li { display: flex; }
-.home-page .main-nav a {
+.home-landing-tile {
   display: flex;
-  min-width: 88px;
-  min-height: 76px;
+  min-height: 142px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 10px 14px;
-  border: 1px solid rgba(255,255,255,.14);
-  border-radius: 16px;
-  background: rgba(255,255,255,.055);
+  gap: 12px;
+  padding: 18px 12px;
+  color: var(--text, #e8eefb);
   text-align: center;
-  line-height: 1.45;
+  text-decoration: none;
+  background: var(--surface, rgba(255,255,255,.045));
+  border: 1px solid var(--border, rgba(255,255,255,.12));
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  transition: transform .18s ease, border-color .18s ease, background .18s ease;
 }
-.home-page .main-nav a::before {
-  display: block;
-  font-size: 1.25rem;
-  line-height: 1;
-  color: var(--teal-300);
+.home-landing-tile:hover {
+  transform: translateY(-3px);
+  border-color: rgba(94,234,212,.65);
+  background: rgba(255,255,255,.075);
 }
-.home-page .main-nav a[href="/Techima.github.io/"]::before { content: "⌂"; }
-.home-page .main-nav a[href="/Techima.github.io/about/"]::before { content: "♙"; }
-.home-page .main-nav a[href="/Techima.github.io/projects/"]::before { content: "▣"; }
-.home-page .main-nav a[href="/Techima.github.io/articles/"]::before { content: "▤"; }
-.home-page .main-nav a[href="/Techima.github.io/videos/"]::before { content: "▷"; }
-.home-page .main-nav a[href="/Techima.github.io/contact/"]::before { content: "✉"; }
-.home-page .main-nav a:hover {
-  transform: translateY(-2px);
-  border-color: rgba(94,234,212,.55);
-  background: rgba(255,255,255,.11);
+.home-landing-tile:focus-visible {
+  outline: 3px solid var(--teal-300, #5eead4);
+  outline-offset: 3px;
 }
-.home-page .main-nav a[aria-current="page"]::before { color: var(--navy-950); }
-@media (max-width: 720px) {
-  .home-page .main-nav ul { flex-wrap: wrap; gap: 7px; }
-  .home-page .main-nav li { flex: 1 1 calc(33.333% - 7px); min-width: 0; }
-  .home-page .main-nav a {
-    width: 100%;
-    min-width: 0;
-    min-height: 72px;
-    padding: 9px 5px;
-    border-radius: 14px;
-    font-size: .84rem;
-  }
+.home-landing-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border-radius: 15px;
+  color: var(--teal-300, #5eead4);
+  background: rgba(20,184,166,.12);
 }
-@media (max-width: 360px) {
-  .home-page .main-nav li { flex-basis: calc(50% - 7px); }
+.home-landing-icon svg { width: 26px; height: 26px; }
+.home-landing-tile strong { font-size: 1rem; line-height: 1.5; }
+@media (max-width: 900px) {
+  .home-landing-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .home-landing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .home-landing-tile { min-height: 124px; padding: 14px 8px; border-radius: 15px; }
+  .home-landing-icon { width: 46px; height: 46px; border-radius: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-landing-tile { transition: none; }
+  .home-landing-tile:hover { transform: none; }
 }
