@@ -1478,3 +1478,16 @@ main { flex: 1 0 auto; }
 @media (prefers-reduced-motion: reduce) {
   .home-landing-tile:hover, .home-landing-tile:hover .home-landing-icon { transform: none; }
 }
+
+
+/* Keep landing-card labels readable on the bright hover surface */
+.home-landing-tile:hover,
+.home-landing-tile:focus-visible {
+  background: #fff;
+  color: #111827;
+}
+.home-landing-tile:hover strong,
+.home-landing-tile:focus-visible strong {
+  color: #111827;
+  text-shadow: none;
+}
