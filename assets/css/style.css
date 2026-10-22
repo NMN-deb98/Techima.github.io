@@ -1740,3 +1740,43 @@ main { flex: 1 0 auto; }
     margin:10px auto 14px !important;
   }
 }
+
+/* Compact, refined homepage connectors that visually meet adjacent sections */
+.home-page .network-road-segment {
+  width:min(72%,860px) !important;
+  height:clamp(190px,22vw,250px) !important;
+  margin:0 auto !important;
+  position:relative;
+  z-index:1;
+}
+.home-page .network-road-svg { display:block; width:100%; height:100%; }
+.home-page .network-road-segment::before,
+.home-page .network-road-segment::after {
+  height:32px !important;
+  width:3px !important;
+}
+.home-page .network-road-segment::before { top:-20px !important; }
+.home-page .network-road-segment::after { bottom:-20px !important; }
+.home-page .network-road-platform > circle:first-child { r:25px !important; }
+.home-page .network-road-platform > circle:nth-child(2) { r:19px !important; }
+.home-page .network-road-platform > g { transform:translate(-50px,-50px) scale(.78) !important; }
+.home-page .network-road-base { stroke-width:7 !important; }
+.home-page .network-road-glow { stroke-width:17 !important; opacity:.22 !important; }
+.home-page .network-road-dashes { stroke-width:2 !important; stroke-dasharray:8 14 !important; }
+.home-page .network-road-node { r:5px !important; }
+.home-page .network-road-caption { bottom:0 !important; padding:5px 12px !important; font-size:.74rem !important; }
+@media(max-width:600px) {
+  .home-page .network-road-segment {
+    width:88% !important;
+    height:165px !important;
+    margin:0 auto !important;
+  }
+  .home-page .network-road-segment::before,
+  .home-page .network-road-segment::after { height:22px !important; }
+  .home-page .network-road-segment::before { top:-12px !important; }
+  .home-page .network-road-segment::after { bottom:-12px !important; }
+  .home-page .network-road-platform > circle:first-child { r:22px !important; }
+  .home-page .network-road-platform > circle:nth-child(2) { r:17px !important; }
+  .home-page .network-road-platform > g { transform:translate(-50px,-50px) scale(.68) !important; }
+  .home-page .network-road-caption { font-size:.65rem !important; padding:4px 9px !important; }
+}
