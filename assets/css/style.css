@@ -1664,3 +1664,39 @@ main { flex: 1 0 auto; }
   .home-page .network-road-segment { height:140px; margin:1px auto 3px; }
   .home-page .network-road-segment::before,.home-page .network-road-segment::after { height:13px; }
 }
+
+
+/* Final sizing pass: make the homepage network path wider, taller and easier to follow */
+.home-page .network-road-segment {
+  height:clamp(220px,24vw,290px) !important;
+  margin:12px auto 16px !important;
+  width:min(100%,1280px);
+  overflow:visible;
+}
+.home-page .network-road-svg { overflow:visible; }
+.home-page .network-road-base { stroke-width:11; }
+.home-page .network-road-glow { stroke-width:25; opacity:.3; }
+.home-page .network-road-dashes { stroke-width:3; stroke-dasharray:12 20; }
+.home-page .network-road-node { stroke-width:5; }
+.home-page .network-road-platform > circle:first-child { r:39; }
+.home-page .network-road-platform > circle:nth-child(2) { r:31; }
+.home-page .network-road-platform > g { transform:translate(-50px,-50px) scale(1.18); transform-origin:50px 50px; }
+.home-page .network-road-segment::before,
+.home-page .network-road-segment::after {
+  content:""; position:absolute; left:50%; width:4px; height:28px; transform:translateX(-50%);
+  background:linear-gradient(180deg,rgba(34,211,238,.16),rgba(129,140,248,.95));
+  box-shadow:0 0 14px rgba(34,211,238,.45); z-index:0;
+}
+.home-page .network-road-segment::before { top:-12px; }
+.home-page .network-road-segment::after { bottom:-12px; }
+.network-road-caption { z-index:2; bottom:4px; padding:7px 16px; font-size:.82rem; }
+@media(max-width:600px) {
+  .home-page .network-road-segment { height:174px !important; margin:7px auto 10px !important; }
+  .home-page .network-road-base { stroke-width:9; }
+  .home-page .network-road-glow { stroke-width:20; }
+  .home-page .network-road-dashes { stroke-width:2.5; stroke-dasharray:9 16; }
+  .home-page .network-road-platform > circle:first-child { r:34; }
+  .home-page .network-road-platform > circle:nth-child(2) { r:27; }
+  .home-page .network-road-segment::before,.home-page .network-road-segment::after { height:20px; }
+  .network-road-caption { font-size:.7rem; padding:5px 11px; }
+}
