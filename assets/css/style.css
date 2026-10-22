@@ -2178,3 +2178,41 @@ main { flex: 1 0 auto; }
   .home-page .network-road-segment::before { top:-38px !important; }
   .home-page .network-road-segment::after { bottom:-38px !important; }
 }
+
+/* Final proportions for the homepage connector: taller, slightly wider, elegant */
+.home-page .network-road-segment {
+  width:min(68%,820px) !important;
+  height:clamp(250px,29vw,340px) !important;
+}
+.home-page .network-road-svg { overflow:visible !important; }
+.home-page .network-road-segment::before,
+.home-page .network-road-segment::after {
+  width:4px !important;
+  height:clamp(64px,6vw,86px) !important;
+}
+.home-page .network-road-segment::before { top:calc(-1 * clamp(64px,6vw,86px)) !important; }
+.home-page .network-road-segment::after { bottom:calc(-1 * clamp(64px,6vw,86px)) !important; }
+.home-page .network-road-platform > circle:first-child { r:22px !important; }
+.home-page .network-road-platform > circle:nth-child(2) { r:16px !important; }
+.home-page .network-road-platform > g { transform:translate(-50px,-50px) scale(.64) !important; }
+.home-page .network-road-caption {
+  font-size:.72rem !important;
+  padding:5px 12px !important;
+}
+@media(max-width:700px) {
+  .home-page .network-road-segment {
+    width:84% !important;
+    height:220px !important;
+  }
+  .home-page .network-road-segment::before,
+  .home-page .network-road-segment::after {
+    height:44px !important;
+    width:3px !important;
+  }
+  .home-page .network-road-segment::before { top:-44px !important; }
+  .home-page .network-road-segment::after { bottom:-44px !important; }
+  .home-page .network-road-platform > circle:first-child { r:19px !important; }
+  .home-page .network-road-platform > circle:nth-child(2) { r:14px !important; }
+  .home-page .network-road-platform > g { transform:translate(-50px,-50px) scale(.56) !important; }
+  .home-page .network-road-caption { font-size:.64rem !important; }
+}
