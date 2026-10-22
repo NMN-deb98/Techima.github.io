@@ -1537,3 +1537,36 @@ main { flex: 1 0 auto; }
   .article-category-filters { gap: 7px; }
   .article-category-filter { padding: 7px 11px; font-size: .84rem; }
 }
+
+
+/* Homepage section separator prototype — animated network packet */
+.home-page .network-bridge { position:relative; z-index:1; padding:0 20px 12px; margin:-2px auto 38px; }
+.network-bridge-inner {
+  display:grid; grid-template-columns:auto minmax(80px,1fr) auto; align-items:center;
+  gap:clamp(12px,3vw,30px); width:min(100%,790px); min-height:112px; margin-inline:auto;
+  padding:20px clamp(16px,3vw,30px); border:1px solid rgba(94,234,212,.22); border-radius:22px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(20,184,166,.13),transparent 68%),linear-gradient(135deg,#0b1d3a,#101b35 68%,#0b2539);
+  box-shadow:0 15px 36px rgba(11,29,58,.12),inset 0 1px 0 rgba(255,255,255,.07);
+}
+.network-endpoint { display:flex; align-items:center; gap:10px; min-width:0; color:#f8fafc; }
+.network-endpoint-icon { display:grid; place-items:center; flex:0 0 38px; width:38px; height:38px; border:1px solid rgba(94,234,212,.35); border-radius:12px; background:rgba(20,184,166,.13); color:#5eead4; font-size:1.25rem; font-weight:800; }
+.network-endpoint-copy { display:grid; gap:1px; }
+.network-endpoint-copy strong { color:#f8fafc; font-size:.9rem; line-height:1.6; white-space:nowrap; }
+.network-endpoint-copy small { color:#9fb1c9; font-size:.75rem; }
+.network-route { position:relative; height:36px; min-width:0; direction:ltr; }
+.network-route-line { position:absolute; top:50%; right:0; left:0; height:2px; transform:translateY(-50%); background:linear-gradient(90deg,rgba(94,234,212,.15),#14b8a6 50%,rgba(94,234,212,.15)); }
+.network-route-node { position:absolute; top:50%; width:9px; height:9px; border:2px solid #5eead4; border-radius:50%; background:#0b1d3a; transform:translate(-50%,-50%); box-shadow:0 0 0 4px rgba(20,184,166,.1); }
+.network-route-node-start { left:3%; } .network-route-node-middle { left:50%; } .network-route-node-end { left:97%; }
+.network-data-packet { position:absolute; top:50%; left:3%; display:grid; place-items:center; width:35px; height:25px; border:1px solid #99f6e4; border-radius:7px; background:linear-gradient(135deg,#5eead4,#14b8a6); box-shadow:0 0 18px rgba(45,212,191,.45); color:#082f35; transform:translate(-50%,-50%); animation:network-packet-travel 3.8s cubic-bezier(.45,0,.55,1) infinite; }
+.network-data-packet span { font:800 8px/1 ui-monospace,monospace; letter-spacing:.04em; }
+.network-bridge-caption { display:flex; align-items:center; justify-content:center; gap:7px; margin:12px 0 0; color:#708198; font-size:.8rem; text-align:center; }
+.network-bridge-caption span { color:#0d9488; font-size:1.1rem; }
+@keyframes network-packet-travel { 0% { left:3%; opacity:.4; } 10% { opacity:1; } 48% { left:50%; } 90% { opacity:1; } 100% { left:97%; opacity:.4; } }
+@media (max-width:560px) {
+  .home-page .network-bridge { padding-inline:14px; margin:0 auto 30px; }
+  .network-bridge-inner { gap:9px; min-height:96px; padding:15px 12px; border-radius:18px; }
+  .network-endpoint { gap:6px; } .network-endpoint-icon { flex-basis:30px; width:30px; height:30px; border-radius:9px; font-size:1rem; }
+  .network-endpoint-copy strong { font-size:.75rem; } .network-endpoint-copy small { font-size:.68rem; }
+  .network-data-packet { width:29px; height:22px; } .network-bridge-caption { font-size:.74rem; }
+}
+@media (prefers-reduced-motion:reduce) { .network-data-packet { animation:none; left:50%; } }
