@@ -2148,3 +2148,33 @@ main { flex: 1 0 auto; }
  .home-page .network-road-segment::before { top:-28px !important; }
  .home-page .network-road-segment::after { bottom:-28px !important; }
 }
+
+/* Latest homepage spacing, taller connectors, and comment-heading contrast */
+.home-page .hero { margin-bottom:clamp(26px,4vw,48px) !important; }
+.home-page .home-landing-shortcuts { padding-top:clamp(20px,3vw,34px) !important; }
+.home-page .network-road-segment {
+  height:clamp(205px,23vw,270px) !important;
+  margin:0 auto !important;
+}
+.home-page .network-road-segment::before,
+.home-page .network-road-segment::after {
+  height:clamp(52px,5vw,72px) !important;
+}
+.home-page .network-road-segment::before { top:calc(-1 * clamp(52px,5vw,72px)) !important; }
+.home-page .network-road-segment::after { bottom:calc(-1 * clamp(52px,5vw,72px)) !important; }
+.home-page .comments-heading h2 { color:#f3f7ff !important; }
+.home-page .comments-heading p {
+  color:#c6d5e8 !important;
+  max-width:760px;
+  line-height:1.95;
+}
+.home-page .comments-kicker { color:#67e8f9 !important; }
+@media(max-width:700px) {
+  .home-page .hero { margin-bottom:28px !important; }
+  .home-page .home-landing-shortcuts { padding-top:18px !important; }
+  .home-page .network-road-segment { height:185px !important; }
+  .home-page .network-road-segment::before,
+  .home-page .network-road-segment::after { height:38px !important; }
+  .home-page .network-road-segment::before { top:-38px !important; }
+  .home-page .network-road-segment::after { bottom:-38px !important; }
+}
