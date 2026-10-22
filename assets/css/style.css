@@ -1706,3 +1706,23 @@ main { flex: 1 0 auto; }
 .home-page .network-road-platform > circle:first-child { r:39; }
 .home-page .network-road-platform > circle:nth-child(2) { r:31; }
 @media(max-width:600px) { .home-page .network-road-segment { height:174px !important; margin:7px auto 10px !important; } }
+
+/* Taller, slightly more compact homepage route */
+.home-page .network-road-segment {
+  height:clamp(270px,29vw,340px) !important;
+  width:min(92%,1160px) !important;
+  margin:14px auto 18px !important;
+}
+.home-page .network-road-platform > circle:first-child { r:34px !important; }
+.home-page .network-road-platform > circle:nth-child(2) { r:27px !important; }
+.home-page .network-road-platform > g { transform:translate(-50px,-50px) scale(1.08); }
+@media(max-width:600px) {
+  .home-page .network-road-segment {
+    height:205px !important;
+    width:96% !important;
+    margin:9px auto 12px !important;
+  }
+  .home-page .network-road-platform > circle:first-child { r:30px !important; }
+  .home-page .network-road-platform > circle:nth-child(2) { r:24px !important; }
+  .home-page .network-road-platform > g { transform:translate(-50px,-50px) scale(1); }
+}
