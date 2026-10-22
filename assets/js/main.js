@@ -2,6 +2,92 @@
 (function () {
   "use strict";
 
+
+  // Digital rain behind the homepage content, from below the hero to the footer.
+  (function initDigitalRain() {
+    var canvas = document.getElementById("digital-rain-canvas");
+    var main = document.querySelector(".home-page main");
+    var hero = document.querySelector(".home-page .hero, .home-page .home-hero, .home-page .hero-section");
+    var footer = document.querySelector(".site-footer");
+    if (!canvas || !main || !footer) return;
+    var ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) return;
+
+    var width = 0, height = 0, dpr = 1, fontSize = 16, columns = 0, drops = [];
+    var reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var lastFrame = 0, frameId = 0;
+
+    function layout() {
+      var mainRect = main.getBoundingClientRect();
+      var heroBottom = hero ? Math.max(0, hero.getBoundingClientRect().bottom - mainRect.top + main.scrollTop) : 0;
+      var footerTop = footer.getBoundingClientRect().top - mainRect.top + main.scrollTop;
+      var start = Math.max(0, heroBottom);
+      var end = Math.max(start, footerTop);
+      canvas.style.top = start + "px";
+      canvas.style.height = Math.max(1, end - start) + "px";
+      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      width = Math.max(1, main.clientWidth);
+      height = Math.max(1, end - start);
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      fontSize = width < 600 ? 13 : 16;
+      columns = Math.ceil(width / (fontSize * 1.7));
+      drops = Array.from({ length: columns }, function () { return Math.random() * (height / fontSize); });
+    }
+
+    function draw(now) {
+      if (document.hidden) { frameId = 0; return; }
+      if (now - lastFrame < 48) { frameId = requestAnimationFrame(draw); return; }
+      lastFrame = now;
+      ctx.clearRect(0, 0, width, height);
+      ctx.font = fontSize + "px monospace";
+      for (var c = 0; c < columns; c++) {
+        var x = c * fontSize * 1.7;
+        var y = drops[c] * fontSize;
+        var trail = 4 + (c % 4);
+        for (var t = 0; t < trail; t++) {
+          var charY = y - t * fontSize;
+          if (charY < 0 || charY > height) continue;
+          ctx.fillStyle = t === 0 ? "rgba(103,232,249,.9)" : "rgba(34,211,238," + ((1 - t / trail) * .58).toFixed(3) + ")";
+          ctx.fillText(Math.random() > .5 ? "1" : "0", x, charY);
+        }
+        drops[c] += .45 + Math.random() * .65;
+        if (y > height && Math.random() > .975) drops[c] = -Math.random() * 12;
+      }
+      frameId = requestAnimationFrame(draw);
+    }
+
+    function refresh() {
+      if (frameId) cancelAnimationFrame(frameId);
+      frameId = 0;
+      layout();
+      if (!reducedMotion && !document.hidden) frameId = requestAnimationFrame(draw);
+      else {
+        ctx.clearRect(0, 0, width, height);
+        ctx.font = fontSize + "px monospace";
+        for (var c = 0; c < columns; c++) {
+          ctx.fillStyle = "rgba(34,211,238,.32)";
+          ctx.fillText(Math.random() > .5 ? "1" : "0", c * fontSize * 1.7, Math.random() * height);
+        }
+      }
+    }
+
+    window.addEventListener("resize", refresh, { passive: true });
+    window.addEventListener("load", refresh, { once: true });
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) { if (frameId) cancelAnimationFrame(frameId); frameId = 0; }
+      else if (!reducedMotion && !frameId) frameId = requestAnimationFrame(draw);
+    });
+    if (window.ResizeObserver) {
+      var observer = new ResizeObserver(refresh);
+      observer.observe(main);
+      observer.observe(footer);
+      if (hero) observer.observe(hero);
+    }
+    refresh();
+  })();
+
   var yearElement = document.getElementById("year");
   if (yearElement) {
     try {
