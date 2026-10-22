@@ -1780,3 +1780,95 @@ main { flex: 1 0 auto; }
   .home-page .network-road-platform > g { transform:translate(-50px,-50px) scale(.68) !important; }
   .home-page .network-road-caption { font-size:.65rem !important; padding:4px 9px !important; }
 }
+
+/* Contact social cards: links remain clickable without looking underlined */
+.contact-item,
+.contact-item:link,
+.contact-item:visited,
+.contact-item:hover,
+.contact-item:focus-visible,
+.contact-item h3,
+.contact-item p {
+  text-decoration:none !important;
+}
+.contact-item h3 { text-decoration:none !important; }
+.contact-item:hover h3 { text-decoration:none !important; }
+.contact-item:focus-visible { outline:2px solid var(--accent, #67e8f9); outline-offset:3px; }
+
+/* Give every homepage section a cohesive, softly framed surface */
+.home-page .home-landing-shortcuts > .container,
+.home-page .home-intro > .container,
+.home-page .home-projects > .container,
+.home-page .home-skills > .container,
+.home-page .home-updates > .container,
+.home-page .home-journey > .container,
+.home-page .comments-section > .container {
+  position:relative;
+  padding:clamp(20px,3vw,34px) !important;
+  border:1px solid rgba(129,140,248,.2);
+  border-radius:24px;
+  background:linear-gradient(145deg,rgba(15,30,58,.78),rgba(8,17,35,.62));
+  box-shadow:0 16px 44px rgba(2,8,23,.18), inset 0 1px 0 rgba(255,255,255,.035);
+  backdrop-filter:blur(8px);
+}
+.home-page .home-landing-shortcuts > .container::before,
+.home-page .home-intro > .container::before,
+.home-page .home-projects > .container::before,
+.home-page .home-skills > .container::before,
+.home-page .home-updates > .container::before,
+.home-page .home-journey > .container::before,
+.home-page .comments-section > .container::before {
+  content:"";
+  position:absolute;
+  inset:0 auto auto 28px;
+  width:72px;
+  height:3px;
+  border-radius:0 0 6px 6px;
+  background:linear-gradient(90deg,#22d3ee,#818cf8,#c084fc);
+  opacity:.85;
+}
+.home-page .home-video-preview .home-video-panel,
+.home-page .home-contact-cta .home-cta-panel {
+  border:1px solid rgba(129,140,248,.28);
+  border-radius:24px;
+  box-shadow:0 16px 44px rgba(2,8,23,.22), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.home-page .home-project-card,
+.home-page .home-skill-card,
+.home-page .home-update-card,
+.home-page .home-journey-grid > article,
+.home-page .home-landing-tile {
+  border:1px solid rgba(129,140,248,.18);
+  box-shadow:0 10px 28px rgba(2,8,23,.16);
+}
+.home-page .network-road-segment {
+  width:min(68%,800px) !important;
+  height:clamp(160px,18vw,215px) !important;
+  margin:-1px auto !important;
+}
+.home-page .network-road-segment::before { top:-1px !important; height:22px !important; }
+.home-page .network-road-segment::after { bottom:-1px !important; height:22px !important; }
+.home-page .network-road-platform > circle:first-child { r:22px !important; }
+.home-page .network-road-platform > circle:nth-child(2) { r:17px !important; }
+.home-page .network-road-platform > g { transform:translate(-50px,-50px) scale(.68) !important; }
+.home-page .network-road-base { stroke-width:6 !important; }
+.home-page .network-road-glow { stroke-width:14 !important; }
+.home-page .network-road-dashes { stroke-width:1.8 !important; }
+.home-page .network-road-caption { bottom:-1px !important; }
+@media(max-width:600px) {
+  .home-page .home-landing-shortcuts > .container,
+  .home-page .home-intro > .container,
+  .home-page .home-projects > .container,
+  .home-page .home-skills > .container,
+  .home-page .home-updates > .container,
+  .home-page .home-journey > .container,
+  .home-page .comments-section > .container {
+    padding:18px 14px !important;
+    border-radius:18px;
+  }
+  .home-page .network-road-segment {
+    width:82% !important;
+    height:145px !important;
+    margin:0 auto !important;
+  }
+}
