@@ -2344,12 +2344,12 @@ main { flex: 1 0 auto; }
   height: var(--digital-rain-height, 100%);
   pointer-events: none;
   z-index: 0;
-  opacity: .82;
+  opacity: .98;
 }
 .home-page main { position: relative; isolation: isolate; }
 .home-page main > #digital-rain-canvas { position: absolute; z-index: 0; }
 .home-page main > section,
 .home-page main > .network-road-segment { position: relative; z-index: 1; }
 @media (prefers-reduced-motion: reduce) {
-  #digital-rain-canvas { opacity: .55; }
+  #digital-rain-canvas { opacity: .7; }
 }
