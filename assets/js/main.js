@@ -31,8 +31,8 @@
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      fontSize = width < 600 ? 10 : 12;
-      columns = Math.ceil(width / (fontSize * 1.05));
+      fontSize = width < 600 ? 8 : 9;
+      columns = Math.ceil(width / (fontSize * 0.62));
       drops = Array.from({ length: columns }, function () { return Math.random() * (height / fontSize); });
     }
 
@@ -43,17 +43,17 @@
       ctx.clearRect(0, 0, width, height);
       ctx.font = fontSize + "px monospace";
       for (var c = 0; c < columns; c++) {
-        var x = c * fontSize * 1.7;
+        var x = c * fontSize * 0.62;
         var y = drops[c] * fontSize;
-        var trail = 7 + (c % 7);
+        var trail = 12 + (c % 10);
         for (var t = 0; t < trail; t++) {
           var charY = y - t * fontSize;
           if (charY < 0 || charY > height) continue;
-          ctx.fillStyle = t === 0 ? "rgba(165,243,252,1)" : "rgba(34,211,238," + ((1 - t / trail) * .88).toFixed(3) + ")";
+          ctx.fillStyle = t === 0 ? "rgba(207,250,254,1)" : "rgba(34,211,238," + ((1 - t / trail) * .98).toFixed(3) + ")";
           ctx.fillText(Math.random() > .5 ? "1" : "0", x, charY);
         }
-        drops[c] += .7 + Math.random() * .95;
-        if (y > height && Math.random() > .94) drops[c] = -Math.random() * 18;
+        drops[c] += 1.0 + Math.random() * 1.15;
+        if (y > height && Math.random() > .91) drops[c] = -Math.random() * 24;
       }
       frameId = requestAnimationFrame(draw);
     }
@@ -68,7 +68,7 @@
         ctx.font = fontSize + "px monospace";
         for (var c = 0; c < columns; c++) {
           ctx.fillStyle = "rgba(34,211,238,.72)";
-          ctx.fillText(Math.random() > .5 ? "1" : "0", c * fontSize * 1.7, Math.random() * height);
+          ctx.fillText(Math.random() > .5 ? "1" : "0", c * fontSize * 0.62, Math.random() * height);
         }
       }
     }
