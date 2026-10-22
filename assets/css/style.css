@@ -1641,3 +1641,26 @@ main { flex: 1 0 auto; }
  .network-road-dashes { animation:none; }
  .network-road-packet { display:none; }
 }
+
+
+/* Make every network road visibly bridge the section above and below */
+.home-page .network-road-segment {
+  height:clamp(132px,17vw,196px);
+  margin:clamp(-8px,-.5vw,-3px) auto;
+  width:min(100%,1120px);
+  overflow:visible;
+}
+.home-page .network-road-svg { overflow:visible; }
+.home-page .network-road-segment::before,
+.home-page .network-road-segment::after {
+  content:""; position:absolute; left:50%; width:3px; height:18px; transform:translateX(-50%);
+  background:linear-gradient(180deg,rgba(34,211,238,.12),rgba(129,140,248,.8));
+  box-shadow:0 0 10px rgba(34,211,238,.35); z-index:0;
+}
+.home-page .network-road-segment::before { top:-10px; }
+.home-page .network-road-segment::after { bottom:-10px; }
+.network-road-caption { z-index:2; }
+@media(max-width:600px) {
+  .home-page .network-road-segment { height:118px; margin:0 auto; }
+  .home-page .network-road-segment::before,.home-page .network-road-segment::after { height:13px; }
+}
