@@ -31,8 +31,8 @@
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      fontSize = width < 600 ? 13 : 16;
-      columns = Math.ceil(width / (fontSize * 1.7));
+      fontSize = width < 600 ? 10 : 12;
+      columns = Math.ceil(width / (fontSize * 1.05));
       drops = Array.from({ length: columns }, function () { return Math.random() * (height / fontSize); });
     }
 
