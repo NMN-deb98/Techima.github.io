@@ -2288,3 +2288,48 @@ main { flex: 1 0 auto; }
     margin-right:2% !important;
   }
 }
+
+
+/* Simplified homepage connectors: plain lines on both sides, no decorative shapes */
+.home-page .network-road-segment {
+  width:min(calc(100% - 36px),1240px) !important;
+  height:clamp(150px,18vw,230px) !important;
+  margin:0 auto !important;
+  position:relative !important;
+  overflow:visible !important;
+  z-index:3 !important;
+}
+.home-page .network-road-svg,
+.home-page .network-road-caption {
+  display:none !important;
+}
+.home-page .network-road-segment::before,
+.home-page .network-road-segment::after {
+  content:"" !important;
+  display:block !important;
+  position:absolute !important;
+  top:0 !important;
+  bottom:0 !important;
+  left:auto !important;
+  right:auto !important;
+  width:2px !important;
+  height:100% !important;
+  transform:none !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:rgba(103,232,249,.55) !important;
+  box-shadow:none !important;
+  z-index:1 !important;
+  pointer-events:none !important;
+}
+.home-page .network-road-segment::before { left:12px !important; }
+.home-page .network-road-segment::after { right:12px !important; }
+@media(max-width:700px) {
+  .home-page .network-road-segment {
+    width:calc(100% - 24px) !important;
+    height:clamp(120px,30vw,170px) !important;
+    margin:0 auto !important;
+  }
+  .home-page .network-road-segment::before { left:8px !important; }
+  .home-page .network-road-segment::after { right:8px !important; }
+}
