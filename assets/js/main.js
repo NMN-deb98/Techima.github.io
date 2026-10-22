@@ -31,21 +31,21 @@
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      fontSize = width < 600 ? 5 : 6;
-      columns = Math.ceil(width / (fontSize * 0.22));
+      fontSize = width < 600 ? 8 : 9;
+      columns = Math.ceil(width / (fontSize * 0.42));
       drops = Array.from({ length: columns }, function () { return Math.random() * (height / fontSize); });
     }
 
     function draw(now) {
       if (document.hidden) { frameId = 0; return; }
-      if (now - lastFrame < 48) { frameId = requestAnimationFrame(draw); return; }
+      if (now - lastFrame < 55) { frameId = requestAnimationFrame(draw); return; }
       lastFrame = now;
       ctx.clearRect(0, 0, width, height);
       ctx.font = fontSize + "px monospace";
       for (var c = 0; c < columns; c++) {
-        var x = c * fontSize * 0.22;
+        var x = c * fontSize * 0.42;
         var y = drops[c] * fontSize;
-        var trail = 16 + (c % 12);
+        var trail = 9 + (c % 7);
         for (var t = 0; t < trail; t++) {
           var charY = y - t * fontSize;
           if (charY < 0 || charY > height) continue;
@@ -68,7 +68,7 @@
         ctx.font = fontSize + "px monospace";
         for (var c = 0; c < columns; c++) {
           ctx.fillStyle = "rgba(34,211,238,.72)";
-          ctx.fillText(Math.random() > .5 ? "1" : "0", c * fontSize * 0.22, Math.random() * height);
+          ctx.fillText(Math.random() > .5 ? "1" : "0", c * fontSize * 0.42, Math.random() * height);
         }
       }
     }
