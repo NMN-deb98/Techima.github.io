@@ -1643,10 +1643,10 @@ main { flex: 1 0 auto; }
 }
 
 
-/* Make every network road visibly bridge the section above and below */
+/* Give the connected homepage route more breathing room without making it tedious */
 .home-page .network-road-segment {
-  height:clamp(132px,17vw,196px);
-  margin:clamp(-8px,-.5vw,-3px) auto;
+  height:clamp(170px,19vw,224px);
+  margin:2px auto 4px;
   width:min(100%,1120px);
   overflow:visible;
 }
@@ -1661,6 +1661,6 @@ main { flex: 1 0 auto; }
 .home-page .network-road-segment::after { bottom:-10px; }
 .network-road-caption { z-index:2; }
 @media(max-width:600px) {
-  .home-page .network-road-segment { height:118px; margin:0 auto; }
+  .home-page .network-road-segment { height:140px; margin:1px auto 3px; }
   .home-page .network-road-segment::before,.home-page .network-road-segment::after { height:13px; }
 }
