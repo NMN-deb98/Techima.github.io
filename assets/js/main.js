@@ -13,7 +13,7 @@
     var ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    var width = 0, height = 0, dpr = 1, fontSize = 16, columns = 0, drops = [];
+    var width = 0, height = 0, dpr = 1, fontSize = 12, columns = 0, drops = [];
     var reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var lastFrame = 0, frameId = 0;
 
@@ -45,15 +45,15 @@
       for (var c = 0; c < columns; c++) {
         var x = c * fontSize * 1.7;
         var y = drops[c] * fontSize;
-        var trail = 4 + (c % 4);
+        var trail = 7 + (c % 7);
         for (var t = 0; t < trail; t++) {
           var charY = y - t * fontSize;
           if (charY < 0 || charY > height) continue;
-          ctx.fillStyle = t === 0 ? "rgba(103,232,249,.9)" : "rgba(34,211,238," + ((1 - t / trail) * .58).toFixed(3) + ")";
+          ctx.fillStyle = t === 0 ? "rgba(165,243,252,1)" : "rgba(34,211,238," + ((1 - t / trail) * .88).toFixed(3) + ")";
           ctx.fillText(Math.random() > .5 ? "1" : "0", x, charY);
         }
-        drops[c] += .45 + Math.random() * .65;
-        if (y > height && Math.random() > .975) drops[c] = -Math.random() * 12;
+        drops[c] += .7 + Math.random() * .95;
+        if (y > height && Math.random() > .94) drops[c] = -Math.random() * 18;
       }
       frameId = requestAnimationFrame(draw);
     }
@@ -67,7 +67,7 @@
         ctx.clearRect(0, 0, width, height);
         ctx.font = fontSize + "px monospace";
         for (var c = 0; c < columns; c++) {
-          ctx.fillStyle = "rgba(34,211,238,.32)";
+          ctx.fillStyle = "rgba(34,211,238,.72)";
           ctx.fillText(Math.random() > .5 ? "1" : "0", c * fontSize * 1.7, Math.random() * height);
         }
       }
