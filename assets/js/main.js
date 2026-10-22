@@ -31,8 +31,8 @@
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      fontSize = width < 600 ? 8 : 9;
-      columns = Math.ceil(width / (fontSize * 0.62));
+      fontSize = width < 600 ? 7 : 8;
+      columns = Math.ceil(width / (fontSize * 0.32));
       drops = Array.from({ length: columns }, function () { return Math.random() * (height / fontSize); });
     }
 
@@ -43,9 +43,9 @@
       ctx.clearRect(0, 0, width, height);
       ctx.font = fontSize + "px monospace";
       for (var c = 0; c < columns; c++) {
-        var x = c * fontSize * 0.62;
+        var x = c * fontSize * 0.32;
         var y = drops[c] * fontSize;
-        var trail = 12 + (c % 10);
+        var trail = 16 + (c % 12);
         for (var t = 0; t < trail; t++) {
           var charY = y - t * fontSize;
           if (charY < 0 || charY > height) continue;
@@ -68,7 +68,7 @@
         ctx.font = fontSize + "px monospace";
         for (var c = 0; c < columns; c++) {
           ctx.fillStyle = "rgba(34,211,238,.72)";
-          ctx.fillText(Math.random() > .5 ? "1" : "0", c * fontSize * 0.62, Math.random() * height);
+          ctx.fillText(Math.random() > .5 ? "1" : "0", c * fontSize * 0.32, Math.random() * height);
         }
       }
     }
