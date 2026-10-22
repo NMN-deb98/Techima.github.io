@@ -2216,3 +2216,43 @@ main { flex: 1 0 auto; }
   .home-page .network-road-platform > g { transform:translate(-50px,-50px) scale(.56) !important; }
   .home-page .network-road-caption { font-size:.64rem !important; }
 }
+
+/* Alternating long, tall route: left, right, left, right */
+.home-page .network-road-segment {
+  width:min(78%,960px) !important;
+  height:clamp(330px,38vw,440px) !important;
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+}
+.home-page .network-road-segment:nth-of-type(odd) {
+  margin-left:4% !important;
+  margin-right:auto !important;
+}
+.home-page .network-road-segment:nth-of-type(even) {
+  margin-left:auto !important;
+  margin-right:4% !important;
+}
+.home-page .network-road-segment::before,
+.home-page .network-road-segment::after {
+  height:clamp(70px,7vw,100px) !important;
+}
+.home-page .network-road-segment::before { top:calc(-1 * clamp(70px,7vw,100px)) !important; }
+.home-page .network-road-segment::after { bottom:calc(-1 * clamp(70px,7vw,100px)) !important; }
+@media(max-width:700px) {
+  .home-page .network-road-segment {
+    width:88% !important;
+    height:260px !important;
+  }
+  .home-page .network-road-segment:nth-of-type(odd) {
+    margin-left:2% !important;
+    margin-right:auto !important;
+  }
+  .home-page .network-road-segment:nth-of-type(even) {
+    margin-left:auto !important;
+    margin-right:2% !important;
+  }
+  .home-page .network-road-segment::before,
+  .home-page .network-road-segment::after { height:52px !important; }
+  .home-page .network-road-segment::before { top:-52px !important; }
+  .home-page .network-road-segment::after { bottom:-52px !important; }
+}
