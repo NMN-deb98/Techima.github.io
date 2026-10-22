@@ -1872,3 +1872,129 @@ main { flex: 1 0 auto; }
     margin:0 auto !important;
   }
 }
+
+/* Refined Techima homepage: sculpted glass panels with restrained 3D depth */
+.home-page .home-landing-shortcuts > .container,
+.home-page .home-intro > .container,
+.home-page .home-projects > .container,
+.home-page .home-skills > .container,
+.home-page .home-updates > .container,
+.home-page .home-journey > .container,
+.home-page .comments-section > .container {
+  overflow:visible;
+  border:1px solid rgba(116,190,255,.22) !important;
+  border-radius:28px !important;
+  background:
+    radial-gradient(ellipse at 8% 0%,rgba(45,212,191,.09),transparent 38%),
+    radial-gradient(ellipse at 100% 100%,rgba(129,140,248,.10),transparent 42%),
+    linear-gradient(145deg,rgba(17,31,57,.94),rgba(7,15,31,.94)) !important;
+  box-shadow:
+    0 2px 0 rgba(255,255,255,.045) inset,
+    0 -1px 0 rgba(0,0,0,.45) inset,
+    0 22px 45px rgba(0,0,0,.24),
+    0 7px 0 rgba(4,10,24,.48) !important;
+  -webkit-backdrop-filter:blur(14px) saturate(135%);
+  backdrop-filter:blur(14px) saturate(135%);
+  transform:translateZ(0);
+}
+.home-page .home-landing-shortcuts > .container::before,
+.home-page .home-intro > .container::before,
+.home-page .home-projects > .container::before,
+.home-page .home-skills > .container::before,
+.home-page .home-updates > .container::before,
+.home-page .home-journey > .container::before,
+.home-page .comments-section > .container::before {
+  left:30px !important;
+  width:96px !important;
+  height:3px !important;
+  background:linear-gradient(90deg,#67e8f9,#818cf8 62%,#c084fc) !important;
+  box-shadow:0 0 18px rgba(103,232,249,.28);
+}
+.home-page .home-project-card,
+.home-page .home-skill-card,
+.home-page .home-update-card,
+.home-page .home-journey-grid > article,
+.home-page .home-landing-tile {
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(148,163,255,.2) !important;
+  border-radius:20px !important;
+  background:linear-gradient(145deg,rgba(24,42,72,.86),rgba(9,20,40,.9)) !important;
+  box-shadow:0 12px 0 rgba(3,9,22,.3),0 18px 32px rgba(0,0,0,.19),inset 0 1px 0 rgba(255,255,255,.06) !important;
+  transition:transform .24s ease,border-color .24s ease,box-shadow .24s ease;
+}
+.home-page .home-project-card:hover,
+.home-page .home-skill-card:hover,
+.home-page .home-update-card:hover,
+.home-page .home-journey-grid > article:hover,
+.home-page .home-landing-tile:hover {
+  transform:translateY(-4px);
+  border-color:rgba(103,232,249,.45) !important;
+  box-shadow:0 15px 0 rgba(3,9,22,.25),0 24px 40px rgba(0,0,0,.24),0 0 24px rgba(103,232,249,.06) !important;
+}
+.home-page .home-video-preview .home-video-panel,
+.home-page .home-contact-cta .home-cta-panel {
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(116,190,255,.24) !important;
+  border-radius:28px !important;
+  background:
+    radial-gradient(ellipse at 0% 0%,rgba(45,212,191,.1),transparent 42%),
+    linear-gradient(145deg,rgba(17,31,57,.96),rgba(7,15,31,.96)) !important;
+  box-shadow:0 22px 45px rgba(0,0,0,.24),0 7px 0 rgba(4,10,24,.48),inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+/* Route physically overlaps both neighboring panels so it appears attached */
+.home-page .network-road-segment {
+  position:relative !important;
+  z-index:4 !important;
+  width:min(62%,740px) !important;
+  height:clamp(135px,15vw,180px) !important;
+  margin:-2px auto !important;
+  overflow:visible !important;
+  pointer-events:none;
+}
+.home-page .network-road-svg { display:block;width:100%;height:100%;overflow:visible; }
+.home-page .network-road-base { stroke-width:5.5 !important; }
+.home-page .network-road-glow { stroke-width:12 !important; opacity:.19 !important; }
+.home-page .network-road-dashes { stroke-width:1.5 !important; stroke-dasharray:7 15 !important; }
+.home-page .network-road-node { r:4px !important; }
+.home-page .network-road-platform > circle:first-child { r:19px !important; }
+.home-page .network-road-platform > circle:nth-child(2) { r:14px !important; }
+.home-page .network-road-platform > g { transform:translate(-50px,-50px) scale(.58) !important; }
+.home-page .network-road-caption {
+  bottom:-2px !important;
+  font-size:.68rem !important;
+  padding:4px 10px !important;
+  border:1px solid rgba(103,232,249,.22);
+  border-radius:999px;
+  background:rgba(7,15,31,.88);
+  box-shadow:0 4px 16px rgba(0,0,0,.2);
+}
+@media(max-width:600px) {
+  .home-page .home-landing-shortcuts > .container,
+  .home-page .home-intro > .container,
+  .home-page .home-projects > .container,
+  .home-page .home-skills > .container,
+  .home-page .home-updates > .container,
+  .home-page .home-journey > .container,
+  .home-page .comments-section > .container {
+    padding:20px 14px !important;
+    border-radius:20px !important;
+  }
+  .home-page .network-road-segment {
+    width:78% !important;
+    height:125px !important;
+    margin:-2px auto !important;
+  }
+  .home-page .network-road-platform > circle:first-child { r:17px !important; }
+  .home-page .network-road-platform > circle:nth-child(2) { r:13px !important; }
+  .home-page .network-road-platform > g { transform:translate(-50px,-50px) scale(.52) !important; }
+  .home-page .network-road-caption { font-size:.6rem !important; padding:3px 8px !important; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .home-page .home-project-card,
+  .home-page .home-skill-card,
+  .home-page .home-update-card,
+  .home-page .home-journey-grid > article,
+  .home-page .home-landing-tile { transition:none !important; }
+}
