@@ -1608,3 +1608,36 @@ main { flex: 1 0 auto; }
  .data-roadmap p { bottom:2px; font-size:.65rem; }
 }
 @media(prefers-reduced-motion:reduce) { .data-roadmap-packet { animation:none; left:50%; } }
+
+
+/* Winding network route between homepage sections */
+.home-page .network-road-segment {
+  --road-a:#22d3ee; position:relative; width:min(100%,1120px); height:clamp(118px,15vw,190px);
+  margin:clamp(8px,2vw,22px) auto clamp(12px,2vw,28px); overflow:hidden; isolation:isolate;
+}
+.network-road-svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+.network-road-glow { stroke-dasharray:1; }
+.network-road-base { filter:drop-shadow(0 0 5px rgba(34,211,238,.45)); }
+.network-road-dashes { animation:network-road-dash 2s linear infinite; }
+.network-road-node { fill:#dffaff; stroke:#22d3ee; stroke-width:4; filter:drop-shadow(0 0 8px #22d3ee); }
+.network-road-platform { filter:drop-shadow(0 12px 18px rgba(0,0,0,.2)); }
+.network-road-packet { filter:drop-shadow(0 0 7px #67e8f9); }
+.network-road-caption { position:absolute; bottom:2px; left:50%; transform:translateX(-50%); padding:5px 13px; border:1px solid rgba(103,232,249,.18); border-radius:999px; background:rgba(11,29,58,.82); color:var(--muted,#9aabc3); font-size:.76rem; white-space:nowrap; box-shadow:0 5px 20px rgba(0,0,0,.08); }
+@keyframes network-road-dash { to { stroke-dashoffset:-50; } }
+.network-road-segment:nth-of-type(4n+2) { --road-a:#c084fc; }
+.network-road-segment:nth-of-type(4n+2) .network-road-node { stroke:#c084fc; }
+.network-road-segment:nth-of-type(4n+3) { --road-a:#fbbf24; }
+.network-road-segment:nth-of-type(4n+3) .network-road-node { stroke:#fbbf24; }
+.network-road-segment:nth-of-type(4n) { --road-a:#34d399; }
+.network-road-segment:nth-of-type(4n) .network-road-node { stroke:#34d399; }
+@media(max-width:600px) {
+ .home-page .network-road-segment { width:100%; height:108px; margin:10px auto 18px; }
+ .network-road-caption { bottom:0; font-size:.68rem; max-width:92%; overflow:hidden; text-overflow:ellipsis; }
+ .network-road-platform { transform-box:fill-box; }
+ .network-road-base { stroke-width:7; }
+ .network-road-dashes { stroke-width:1.7; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .network-road-dashes { animation:none; }
+ .network-road-packet { display:none; }
+}
