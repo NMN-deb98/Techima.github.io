@@ -1726,3 +1726,17 @@ main { flex: 1 0 auto; }
   .home-page .network-road-platform > circle:nth-child(2) { r:24px !important; }
   .home-page .network-road-platform > g { transform:translate(-50px,-50px) scale(1); }
 }
+
+/* Final route proportions: narrower footprint, more vertical height */
+.home-page .network-road-segment {
+  width:min(84%,1000px) !important;
+  height:clamp(310px,34vw,390px) !important;
+  margin:16px auto 20px !important;
+}
+@media(max-width:600px) {
+  .home-page .network-road-segment {
+    width:90% !important;
+    height:235px !important;
+    margin:10px auto 14px !important;
+  }
+}
