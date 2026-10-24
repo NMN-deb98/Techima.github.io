@@ -2353,3 +2353,31 @@ main { flex: 1 0 auto; }
 @media (prefers-reduced-motion: reduce) {
   #digital-rain-canvas { opacity: .7; }
 }
+
+/* ---- Articles written in the Techima CMS (generated pages) ---- */
+.article-detail-content-single { grid-template-columns: minmax(0, 1fr); }
+.article-detail-cover-photo { padding: 0; }
+.article-detail-cover-photo::before, .article-detail-cover-photo::after { display: none; }
+.article-detail-cover-photo img { display: block; width: 100%; max-height: 420px; object-fit: cover; }
+.article-detail-cover.article-visual-learning { background: radial-gradient(circle at 25% 25%, #3a638c, #0b1d3a 68%); }
+.article-cms-body h2 { scroll-margin-top: 24px; margin: 34px 0 13px; color: var(--navy-900); font-size: 1.28rem; line-height: 1.8; }
+.article-cms-body > h2:first-child { margin-top: 0; }
+.article-cms-body h3 { margin: 26px 0 10px; color: var(--navy-900); font-size: 1.12rem; line-height: 1.8; }
+.article-cms-body h4, .article-cms-body h5, .article-cms-body h6 { margin: 22px 0 8px; color: var(--navy-900); font-size: 1rem; line-height: 1.8; }
+.article-cms-body ul, .article-cms-body ol { padding-right: 24px; }
+.article-cms-body li { margin: 8px 0; }
+.article-cms-body a { color: var(--teal-700); font-weight: 700; }
+.article-cms-body blockquote { margin: 20px 0; padding: 14px 18px; border-right: 4px solid var(--teal-500); border-radius: 12px; background: var(--teal-50); }
+.article-cms-body blockquote p { margin: 0; }
+.article-cms-body img { display: block; max-width: 100%; height: auto; margin: 22px auto; border-radius: 14px; }
+.article-cms-body figure { margin: 22px 0; }
+.article-cms-body figcaption { margin-top: 8px; color: #66748a; font-size: .86rem; text-align: center; }
+.article-cms-body hr { margin: 28px 0; border: 0; border-top: 1px solid #edf1f5; }
+.article-cms-body pre { direction: ltr; text-align: left; margin: 20px 0; padding: 16px 18px; overflow-x: auto; border-radius: 14px; background: #0b1d3a; color: #e6f4f1; font-size: .9rem; line-height: 1.8; }
+.article-cms-body code { padding: 1px 6px; border-radius: 6px; background: #eef3f7; color: #0b1d3a; font-size: .9em; }
+.article-cms-body pre code { padding: 0; background: transparent; color: inherit; }
+.article-cms-body table { display: block; width: 100%; margin: 22px 0; overflow-x: auto; border-collapse: collapse; }
+.article-cms-body th, .article-cms-body td { padding: 10px 14px; border: 1px solid #e2eaf2; text-align: right; }
+.article-cms-body th { background: #f4f7fa; color: var(--navy-900); }
+.article-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.article-tags span { padding: 4px 12px; border: 1px solid #bde9e3; border-radius: 999px; background: #effdfa; color: var(--teal-700); font-size: .84rem; }
