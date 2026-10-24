@@ -344,13 +344,13 @@ def feed_card(article: dict) -> str:
     if article["image"]:
         thumb = (f'<img class="article-feed-thumb" src="{esc(article["image"])}" alt="{esc(article["imageAlt"])}" '
                  f'width="800" height="450" loading="lazy" decoding="async">')
+    decoration = "" if article["image"] else (f'<span class="article-visual-label">{esc(short)}</span><span class="article-visual-symbol">{esc(symbol)}</span><span class="article-visual-caption">{esc(caption)}</span>')
+    photo_class = " has-photo" if article["image"] else ""
     minutes = max(1, math.ceil(render_body(article["body"])[2] / 180))
     return (
         f'<a class="article-feed-card article-feed-link" href="{SITE_PREFIX}/articles/{quote(article["slug"])}/" '
         f'data-category="{article["category"]}" aria-label="خواندن مقاله {esc(article["title"])}">\n'
-        f'<div class="article-feed-visual article-visual-{article["category"]}" aria-hidden="true">{thumb}'
-        f'<span class="article-visual-label">{esc(short)}</span><span class="article-visual-symbol">{esc(symbol)}</span>'
-        f'<span class="article-visual-caption">{esc(caption)}</span></div>\n'
+        f'<div class="article-feed-visual article-visual-{article["category"]}{photo_class}" aria-hidden="true">{thumb}{decoration}</div>\n'
         f'<div class="article-feed-body"><div class="article-feed-meta"><span>{esc(label)}</span>'
         f'<time datetime="{article["datePublished"]}">{jalali_label(article["datePublished"])}</time></div>'
         f'<h3>{esc(article["title"])}</h3><p>{esc(article["description"])}</p>'
