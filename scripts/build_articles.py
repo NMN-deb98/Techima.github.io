@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Build the articles written in the Techima CMS into static pages.
 
-Input : content/articles/*.json   (written by the CMS through the GitHub API)
-Output: articles/<slug>/index.html, the card list in articles/index.html and sitemap.xml
+Input : content/articles/*.json and content/pages/*.json   (written by the CMS through the GitHub API)
+Output: articles/<slug>/index.html, <slug>/index.html for CMS pages, the card list in articles/index.html and sitemap.xml
+        (every generated page carries Schema.org JSON-LD, canonical and Open Graph tags)
 
 Safety rules
 - Only pages carrying the GENERATED_MARK comment are ever overwritten or removed,
@@ -29,6 +30,7 @@ except ImportError as exc:  # pragma: no cover
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT_DIR = ROOT / "content" / "articles"
+PAGES_CONTENT_DIR = ROOT / "content" / "pages"
 ARTICLES_DIR = ROOT / "articles"
 INDEX_PATH = ARTICLES_DIR / "index.html"
 SITEMAP_PATH = ROOT / "sitemap.xml"
@@ -40,6 +42,8 @@ MARKER_END = "<!-- CMS_ARTICLES_END -->"
 SM = "http://www.sitemaps.org/schemas/sitemap/0.9"
 NS = {"sm": SM}
 RESERVED_SLUGS = {"index", "assets", "page", "feed"}
+PAGE_RESERVED = RESERVED_SLUGS | {"articles", "content", "scripts", "backend", "comment", "nimacrm", "projects", "videos",
+                                  "about", "contact", "admin", "sitemap", "robots", "favicon", "manifest", "404", "github", "node_modules"}
 AUTHOR = "نیما مددی نعمتی"
 
 # key -> (label, short label, symbol, caption)
@@ -337,6 +341,118 @@ def render_article(article: dict, others: list[dict]) -> str:
 '''
 
 
+# ---------------------------------------------------------------- CMS pages
+def page_url(slug: str) -> str:
+    return f"{BASE_URL}/{quote(slug)}/"
+
+
+def load_pages() -> list[dict]:
+    """Return published CMS pages (content/pages/*.json)."""
+    PAGES_CONTENT_DIR.mkdir(parents=True, exist_ok=True)
+    pages = []
+    for path in sorted(PAGES_CONTENT_DIR.glob("*.json")):
+        try:
+            item = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            print(f"::warning::Skipped invalid CMS page JSON {path.name}: {exc}")
+            continue
+        if not isinstance(item, dict) or item.get("status") != "published":
+            continue
+        slug = safe_text(item.get("slug"), 100)
+        title = safe_text(item.get("title"), 180)
+        body = item.get("body", "")
+        if not valid_slug(slug) or slug in PAGE_RESERVED or not title or not isinstance(body, str) or not body.strip():
+            print(f"::warning::Skipped CMS page {path.name}: invalid or reserved slug, or missing title/body.")
+            continue
+        plain = html.unescape(re.sub(r"<[^>]+>", " ", markdown.markdown(body)))
+        description = safe_text(item.get("description"), 300) or " ".join(plain.split())[:155] or title
+        first = valid_date(safe_text(item.get("datePublished")), today())
+        canonical = https_url(item.get("canonical"))
+        item.update(
+            slug=slug, title=title, description=description, body=body, datePublished=first,
+            dateModified=valid_date(safe_text(item.get("dateModified")), first),
+            seoTitle=safe_text(item.get("seoTitle"), 180), canonical=canonical, noindex=bool(item.get("noindex")),
+        )
+        pages.append(item)
+    return pages
+
+
+def render_page(page_item: dict) -> str:
+    header, footer, script = site_chrome()
+    csp = csp_meta()
+    body_html, _toc, _words = render_body(page_item["body"])
+    url = page_url(page_item["slug"])
+    canonical = page_item["canonical"] or url
+    shown_title = page_item["seoTitle"] or page_item["title"]
+    title, desc = esc(shown_title), esc(page_item["description"])
+    robots = "noindex,follow" if page_item["noindex"] else "index,follow"
+    graph = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {"@type": "WebPage", "@id": url + "#webpage", "url": url, "name": f"{shown_title} | تکیما",
+             "description": page_item["description"], "inLanguage": "fa-IR", "isPartOf": {"@id": BASE_URL + "/#website"},
+             "breadcrumb": {"@id": url + "#breadcrumb"}, "author": {"@id": BASE_URL + "/#person"},
+             "datePublished": page_item["datePublished"], "dateModified": page_item["dateModified"]},
+            {"@type": "BreadcrumbList", "@id": url + "#breadcrumb", "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "خانه", "item": BASE_URL + "/"},
+                {"@type": "ListItem", "position": 2, "name": page_item["title"], "item": url}]},
+            {"@type": "WebSite", "@id": BASE_URL + "/#website", "url": BASE_URL + "/", "name": "تکیما",
+             "alternateName": "Techima", "inLanguage": "fa", "publisher": {"@id": BASE_URL + "/#person"}},
+            {"@type": "Person", "@id": BASE_URL + "/#person", "name": AUTHOR, "url": BASE_URL + "/about/",
+             "sameAs": ["https://github.com/NMN-deb98"]},
+        ],
+    }
+    schema_json = json.dumps(graph, ensure_ascii=False, indent=2).replace("</", "<\\/")
+    og_image = f"{BASE_URL}/assets/images/og-image.png"
+    return f'''<!DOCTYPE html>
+{GENERATED_MARK}
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {csp}
+  <title>{title} | تکیما</title>
+  <meta name="description" content="{desc}">
+  <meta name="author" content="{AUTHOR}">
+  <meta name="robots" content="{robots}">
+  <link rel="canonical" href="{esc(canonical)}">
+  <meta name="theme-color" content="#0b1d3a">
+  <link rel="icon" type="image/png" sizes="192x192" href="{SITE_PREFIX}/favicon.png">
+  <link rel="icon" type="image/svg+xml" href="{SITE_PREFIX}/favicon.svg">
+  <link rel="shortcut icon" href="{SITE_PREFIX}/favicon.ico">
+  <link rel="apple-touch-icon" sizes="192x192" href="{SITE_PREFIX}/favicon.png">
+  <link rel="manifest" href="{SITE_PREFIX}/manifest.webmanifest">
+  <link rel="preload" href="{SITE_PREFIX}/assets/fonts/Vazirmatn-Variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{SITE_PREFIX}/assets/css/style.css">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="تکیما | Techima">
+  <meta property="og:locale" content="fa_IR">
+  <meta property="og:title" content="{title} | تکیما">
+  <meta property="og:description" content="{desc}">
+  <meta property="og:url" content="{esc(url)}">
+  <meta property="og:image" content="{esc(og_image)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{title} | تکیما">
+  <meta name="twitter:description" content="{desc}">
+  <meta name="twitter:image" content="{esc(og_image)}">
+  <script type="application/ld+json">
+{schema_json}
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">پرش به محتوای اصلی</a>
+{header}
+<main id="main">
+<nav class="breadcrumb-wrap" aria-label="مسیر راهنما"><div class="container"><ol class="breadcrumb"><li><a href="{SITE_PREFIX}/">خانه</a></li><li class="breadcrumb-separator" aria-hidden="true">›</li><li aria-current="page"><span class="breadcrumb-current">{esc(page_item["title"])}</span></li></ol></div></nav>
+<article class="article-detail"><header class="article-detail-header"><div class="article-detail-heading"><h1>{esc(page_item["title"])}</h1><p class="article-detail-lead">{desc}</p></div></header>
+<div class="article-detail-content article-detail-content-single"><div class="article-detail-prose article-cms-body">{body_html}</div></div></article></main>
+{footer}
+{script}
+</body>
+</html>
+'''
+
+
 # ---------------------------------------------------------------- articles index
 def feed_card(article: dict) -> str:
     label, short, symbol, caption = CATEGORIES[article["category"]]
@@ -370,7 +486,7 @@ def update_articles_index(articles: list[dict]) -> None:
 
 
 # ---------------------------------------------------------------- sitemap
-def update_sitemap(articles: list[dict]) -> None:
+def update_sitemap(articles: list[dict], cms_pages: list[dict] | None = None) -> None:
     """Refresh CMS article URLs; drop URLs whose page no longer exists; keep everything else."""
     ET.register_namespace("", SM)
     tree = ET.parse(SITEMAP_PATH)
@@ -395,6 +511,23 @@ def update_sitemap(articles: list[dict]) -> None:
             last = node.find("sm:lastmod", NS)
             if loc is not None and loc.text == BASE_URL + "/articles/" and last is not None and last.text < newest:
                 last.text = newest
+    # CMS pages: <BASE>/<slug>/ . Only entries that are republished here or whose page vanished are touched.
+    cms_pages = cms_pages or []
+    page_urls = {page_url(p["slug"]) for p in cms_pages}
+    root_pattern = re.compile(re.escape(BASE_URL) + r"/([a-z0-9]+(?:-[a-z0-9]+)*)/")
+    for node in list(root.findall("sm:url", NS)):
+        loc = node.find("sm:loc", NS)
+        match = root_pattern.fullmatch(loc.text) if loc is not None and loc.text else None
+        if match and match.group(1) not in {"articles"} and (loc.text in page_urls or not (ROOT / match.group(1) / "index.html").exists()):
+            root.remove(node)
+    for item in cms_pages:
+        if item["noindex"]:
+            continue
+        node = ET.SubElement(root, f"{{{SM}}}url")
+        ET.SubElement(node, f"{{{SM}}}loc").text = page_url(item["slug"])
+        ET.SubElement(node, f"{{{SM}}}lastmod").text = item["dateModified"]
+        ET.SubElement(node, f"{{{SM}}}changefreq").text = "monthly"
+        ET.SubElement(node, f"{{{SM}}}priority").text = "0.6"
     ET.indent(root, space="  ")
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(root, encoding="unicode") + "\n"
     SITEMAP_PATH.write_text(xml, encoding="utf-8")
@@ -430,9 +563,26 @@ def main() -> None:
         if folder.is_dir() and folder.name not in wanted and page.exists() and is_generated(page):
             shutil.rmtree(folder)
 
+    # CMS pages (content/pages/*.json -> <slug>/index.html)
+    cms_pages = []
+    for item in load_pages():
+        out = ROOT / item["slug"] / "index.html"
+        if (ROOT / item["slug"]).exists() and not (out.exists() and is_generated(out)):
+            print(f"::warning::Skipped CMS page '{item['slug']}': {item['slug']}/ already exists and is not CMS-generated.")
+            continue
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(render_page(item), encoding="utf-8")
+        cms_pages.append(item)
+    wanted_pages = {p["slug"] for p in cms_pages}
+    for folder in ROOT.iterdir():
+        page = folder / "index.html"
+        if (folder.is_dir() and not folder.name.startswith(".") and folder.name != "articles"
+                and folder.name not in wanted_pages and page.exists() and is_generated(page)):
+            shutil.rmtree(folder)
+
     update_articles_index(articles)
-    update_sitemap(articles)
-    print(f"Built {len(articles)} published CMS article(s).")
+    update_sitemap(articles, cms_pages)
+    print(f"Built {len(articles)} published CMS article(s) and {len(cms_pages)} CMS page(s).")
 
 
 if __name__ == "__main__":
