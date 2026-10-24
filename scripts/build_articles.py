@@ -7,7 +7,7 @@ Output: articles/<slug>/index.html, the card list in articles/index.html and sit
 Safety rules
 - Only pages carrying the GENERATED_MARK comment are ever overwritten or removed,
   so hand-written pages (for example articles/seo-technical-checklist/) are never touched.
-- Sitemap entries are only touched for slugs that have a CMS JSON file.
+- Sitemap entries are only removed when their page no longer exists on disk.
 """
 from __future__ import annotations
 
@@ -133,10 +133,10 @@ def https_url(value: object) -> str:
 
 
 # ---------------------------------------------------------------- loading
-def load_all() -> tuple[list[dict], set[str]]:
-    """Return (published articles newest first, every slug that has a JSON file)."""
+def load_published() -> list[dict]:
+    """Return the published articles, newest first."""
     CONTENT_DIR.mkdir(parents=True, exist_ok=True)
-    published, known = [], set()
+    published = []
     for path in sorted(CONTENT_DIR.glob("*.json")):
         try:
             item = json.loads(path.read_text(encoding="utf-8"))
@@ -144,11 +144,9 @@ def load_all() -> tuple[list[dict], set[str]]:
             raise SystemExit(f"Invalid CMS article JSON in {path.name}: {exc}") from exc
         if not isinstance(item, dict):
             raise SystemExit(f"CMS article must be a JSON object: {path.name}")
-        slug = safe_text(item.get("slug"), 100)
-        if valid_slug(slug):
-            known.add(slug)
         if item.get("status") != "published":
             continue
+        slug = safe_text(item.get("slug"), 100)
         title = safe_text(item.get("title"), 180)
         description = safe_text(item.get("description"), 300)
         body = item.get("body", "")
@@ -171,7 +169,7 @@ def load_all() -> tuple[list[dict], set[str]]:
     if len(slugs) != len(set(slugs)):
         raise SystemExit("Two published articles share the same slug.")
     published.sort(key=lambda a: (a["datePublished"], a["title"]), reverse=True)
-    return published, known
+    return published
 
 
 # ---------------------------------------------------------------- body
@@ -179,9 +177,11 @@ def render_body(md_text: str) -> tuple[str, list[tuple[str, str]], int]:
     """Markdown -> sanitized HTML, table of contents [(id, text)], word count."""
     raw = markdown.markdown(md_text, extensions=["extra", "sane_lists", "fenced_code", "tables"], output_format="html5")
     clean = bleach.clean(raw, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, protocols={"http", "https", "mailto"}, strip=True)
-    # The page title is the only <h1>: shift every heading in the body one level down.
-    for level in range(5, 0, -1):
-        clean = re.sub(rf"<(/?)h{level}(?=[\s>])", rf"<\1h{level + 1}", clean)
+    # The page title is the only <h1>. If the author used "#" inside the body, shift every
+    # heading one level down; otherwise "##" stays as the main section heading.
+    if re.search(r"<h1[\s>]", clean):
+        for level in range(5, 0, -1):
+            clean = re.sub(rf"<(/?)h{level}(?=[\s>])", rf"<\1h{level + 1}", clean)
     toc: list[tuple[str, str]] = []
 
     def add_id(match: re.Match) -> str:
@@ -370,14 +370,17 @@ def update_articles_index(articles: list[dict]) -> None:
 
 
 # ---------------------------------------------------------------- sitemap
-def update_sitemap(articles: list[dict], known: set[str]) -> None:
+def update_sitemap(articles: list[dict]) -> None:
+    """Refresh CMS article URLs; drop URLs whose page no longer exists; keep everything else."""
     ET.register_namespace("", SM)
     tree = ET.parse(SITEMAP_PATH)
     root = tree.getroot()
-    managed = {article_url(slug) for slug in known}
+    published_urls = {article_url(a["slug"]) for a in articles}
+    pattern = re.compile(re.escape(BASE_URL) + r"/articles/([a-z0-9]+(?:-[a-z0-9]+)*)/")
     for node in list(root.findall("sm:url", NS)):
         loc = node.find("sm:loc", NS)
-        if loc is not None and loc.text in managed:
+        match = pattern.fullmatch(loc.text) if loc is not None and loc.text else None
+        if match and (loc.text in published_urls or not (ARTICLES_DIR / match.group(1) / "index.html").exists()):
             root.remove(node)
     for item in articles:
         node = ET.SubElement(root, f"{{{SM}}}url")
@@ -406,7 +409,7 @@ def is_generated(path: Path) -> bool:
 
 
 def main() -> None:
-    articles, known = load_all()
+    articles = load_published()
     wanted = {a["slug"] for a in articles}
 
     for article in articles:
@@ -423,7 +426,7 @@ def main() -> None:
             shutil.rmtree(folder)
 
     update_articles_index(articles)
-    update_sitemap(articles, known)
+    update_sitemap(articles)
     print(f"Built {len(articles)} published CMS article(s).")
 
 
