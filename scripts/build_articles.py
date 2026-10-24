@@ -393,7 +393,8 @@ def update_sitemap(articles: list[dict], known: set[str]) -> None:
             if loc is not None and loc.text == BASE_URL + "/articles/" and last is not None and last.text < newest:
                 last.text = newest
     ET.indent(root, space="  ")
-    tree.write(SITEMAP_PATH, encoding="utf-8", xml_declaration=True)
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(root, encoding="unicode") + "\n"
+    SITEMAP_PATH.write_text(xml, encoding="utf-8")
 
 
 # ---------------------------------------------------------------- main
