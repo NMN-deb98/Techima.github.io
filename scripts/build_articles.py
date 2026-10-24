@@ -409,13 +409,18 @@ def is_generated(path: Path) -> bool:
 
 
 def main() -> None:
-    articles = load_published()
+    articles = []
+    for article in load_published():
+        page = ARTICLES_DIR / article["slug"] / "index.html"
+        if page.exists() and not is_generated(page):
+            # Never overwrite a hand-written page, and never block the other articles because of it.
+            print(f"::warning::Skipped CMS article '{article['slug']}': articles/{article['slug']}/ is a hand-written page.")
+            continue
+        articles.append(article)
     wanted = {a["slug"] for a in articles}
 
     for article in articles:
         out = ARTICLES_DIR / article["slug"] / "index.html"
-        if out.exists() and not is_generated(out):
-            raise SystemExit(f"articles/{article['slug']}/ is a hand-written page; choose another slug for the CMS article.")
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(render_article(article, articles), encoding="utf-8")
 
