@@ -270,50 +270,6 @@
   </footer>
   <script src="/Techima.github.io/assets/js/main.js" defer></script>
 
-  <script>
-    (() => {
-      const filters = document.querySelectorAll('.article-category-filter');
-      const cards = Array.from(document.querySelectorAll('.article-feed-card[data-category]'));
-      const groups = document.querySelectorAll('.article-timeline-group');
-      const endMarker = document.querySelector('.article-timeline-end');
-      const timeline = document.querySelector('.article-timeline');
-      if (!filters.length || !cards.length) return;
-
-      let emptyMessage = document.querySelector('.article-category-empty');
-      if (!emptyMessage && timeline) {
-        emptyMessage = document.createElement('p');
-        emptyMessage.className = 'article-category-empty';
-        emptyMessage.setAttribute('role', 'status');
-        emptyMessage.hidden = true;
-        emptyMessage.textContent = 'هنوز مقاله‌ای در این دسته‌بندی منتشر نشده است.';
-        timeline.insertBefore(emptyMessage, endMarker || null);
-      }
-
-      const applyFilter = (category) => {
-        let visibleCount = 0;
-        filters.forEach((button) => {
-          const active = button.dataset.filter === category;
-          button.classList.toggle('is-active', active);
-          button.setAttribute('aria-pressed', String(active));
-        });
-        cards.forEach((card) => {
-          const visible = category === 'all' || card.dataset.category === category;
-          card.hidden = !visible;
-          if (visible) visibleCount += 1;
-        });
-        groups.forEach((group) => {
-          group.hidden = !Array.from(group.querySelectorAll('.article-feed-card[data-category]'))
-            .some((card) => !card.hidden);
-        });
-        if (emptyMessage) emptyMessage.hidden = visibleCount !== 0;
-        if (endMarker) endMarker.hidden = category !== 'all';
-      };
-
-      filters.forEach((button) => {
-        button.addEventListener('click', () => applyFilter(button.dataset.filter));
-      });
-      applyFilter('all');
-    })();
-  </script>
+  <script src="/Techima.github.io/assets/js/article-filter.js" defer></script>
   </body>
 </html>
