@@ -167,6 +167,8 @@ def load_published() -> list[dict]:
             category=category if category in CATEGORIES else DEFAULT_CATEGORY,
             tags=[safe_text(t, 60) for t in (item.get("tags") or []) if safe_text(t, 60)][:12],
             image=https_url(item.get("image")), imageAlt=safe_text(item.get("imageAlt"), 180),
+            seoTitle=safe_text(item.get("seoTitle"), 180), canonical=https_url(item.get("canonical")),
+            noindex=bool(item.get("noindex")),
         )
         published.append(item)
     slugs = [a["slug"] for a in published]
@@ -297,11 +299,11 @@ def render_article(article: dict, others: list[dict]) -> str:
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   {csp}
-  <title>{title} | تکیما</title>
+  <title>{esc(article.get("seoTitle") or article["title"])} | تکیما</title>
   <meta name="description" content="{desc}">
   <meta name="author" content="{AUTHOR}">
-  <meta name="robots" content="index,follow">
-  <link rel="canonical" href="{esc(url)}">
+  <meta name="robots" content="{"noindex,follow" if article.get("noindex") else "index,follow"}">
+  <link rel="canonical" href="{esc(article.get("canonical") or url)}">
   <meta name="theme-color" content="#0b1d3a">
   <link rel="icon" type="image/png" sizes="192x192" href="{SITE_PREFIX}/favicon.png">
   <link rel="icon" type="image/svg+xml" href="{SITE_PREFIX}/favicon.svg">
@@ -499,6 +501,8 @@ def update_sitemap(articles: list[dict], cms_pages: list[dict] | None = None) ->
         if match and (loc.text in published_urls or not (ARTICLES_DIR / match.group(1) / "index.html").exists()):
             root.remove(node)
     for item in articles:
+        if item.get("noindex"):
+            continue
         node = ET.SubElement(root, f"{{{SM}}}url")
         ET.SubElement(node, f"{{{SM}}}loc").text = article_url(item["slug"])
         ET.SubElement(node, f"{{{SM}}}lastmod").text = item["dateModified"]
