@@ -179,6 +179,26 @@ def load_published() -> list[dict]:
     return published
 
 
+
+CALLOUTS = {"INFO": "اطلاعات", "TIP": "نکته", "WARNING": "هشدار", "DANGER": "خطر", "SUCCESS": "موفق"}
+
+
+def render_blocks(clean: str) -> str:
+    """Turn editor shortcodes (already sanitized HTML) into styled blocks. Only fixed, validated patterns are expanded."""
+    clean = re.sub(
+        r"<blockquote>\s*<p>\[!(INFO|TIP|WARNING|DANGER|SUCCESS)\]\s*",
+        lambda m: f'<blockquote class="callout callout-{m.group(1).lower()}"><p><strong class="callout-label">{CALLOUTS[m.group(1)]}</strong> ',
+        clean)
+    clean = re.sub(
+        r"<p>\{\{youtube:([A-Za-z0-9_-]{11})\}\}</p>",
+        r'<div class="video-embed"><iframe src="https://www.youtube-nocookie.com/embed/\1" title="ویدیو" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>',
+        clean)
+    clean = re.sub(
+        r'<p>\{\{button:([^|<>{}]{1,80})\|(https://[^\s"<>|{}]+)\}\}</p>',
+        r'<p class="cms-btn"><a class="btn-cta" href="\2" rel="noopener noreferrer">\1</a></p>',
+        clean)
+    return clean
+
 # ---------------------------------------------------------------- body
 def render_body(md_text: str) -> tuple[str, list[tuple[str, str]], int]:
     """Markdown -> sanitized HTML, table of contents [(id, text)], word count."""
@@ -200,6 +220,7 @@ def render_body(md_text: str) -> tuple[str, list[tuple[str, str]], int]:
     clean = re.sub(r"<h2([^>]*)>(.*?)</h2>", add_id, clean, flags=re.S)
     clean = re.sub(r'<a href="(https?://[^"]+)"', r'<a href="\1" rel="noopener noreferrer"', clean)
     clean = clean.replace("<img ", '<img loading="lazy" decoding="async" ')
+    clean = render_blocks(clean)
     plain = html.unescape(re.sub(r"<[^>]+>", " ", clean))
     return clean, toc, len(plain.split())
 
@@ -221,7 +242,10 @@ def csp_meta() -> str:
     match = re.search(r'<meta http-equiv="Content-Security-Policy"[^>]*>', page)
     if not match:
         raise SystemExit("articles/index.html has no Content-Security-Policy meta tag.")
-    return match.group(0)
+    tag = match.group(0)
+    if "frame-src" not in tag:
+        tag = tag.replace("object-src 'none'", "frame-src https://www.youtube-nocookie.com; object-src 'none'")
+    return tag
 
 
 # ---------------------------------------------------------------- article page

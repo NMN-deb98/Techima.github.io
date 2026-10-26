@@ -2396,3 +2396,16 @@ main { flex: 1 0 auto; }
 .article-faq details[open] summary::after { content: "−"; }
 .article-faq details[open] summary { border-bottom: 1px solid var(--line, #dbe3ee); background: #f8fafc; }
 .article-faq details p { margin: 0; padding: 14px 18px; line-height: 2; }
+
+.article-cms-body .callout { margin: 22px 0; padding: 14px 18px; border-radius: 14px; border: 1px solid #bfdbfe; border-right: 5px solid #2563eb; background: #eff6ff; color: #1e3a8a; }
+.article-cms-body .callout p { margin: 0; }
+.article-cms-body .callout-label { margin-inline-end: 6px; }
+.article-cms-body .callout-tip { background: #f0fdf4; border-color: #bbf7d0; border-right-color: #16a34a; color: #14532d; }
+.article-cms-body .callout-warning { background: #fffbeb; border-color: #fde68a; border-right-color: #d97706; color: #78350f; }
+.article-cms-body .callout-danger { background: #fef2f2; border-color: #fecaca; border-right-color: #dc2626; color: #7f1d1d; }
+.article-cms-body .callout-success { background: #ecfdf5; border-color: #a7f3d0; border-right-color: #059669; color: #064e3b; }
+.video-embed { position: relative; aspect-ratio: 16 / 9; margin: 24px 0; border-radius: 16px; overflow: hidden; background: #0f172a; box-shadow: 0 14px 34px rgba(15,23,42,.18); }
+.video-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.article-cms-body .cms-btn { margin: 24px 0; text-align: center; }
+.btn-cta { display: inline-block; padding: 12px 28px; border-radius: 999px; background: linear-gradient(135deg, #2563eb, #7c3aed); color: #fff !important; font-weight: 700; text-decoration: none; box-shadow: 0 10px 24px rgba(37,99,235,.28); transition: transform .15s; }
+.btn-cta:hover { transform: translateY(-2px); }
