@@ -2386,3 +2386,13 @@ main { flex: 1 0 auto; }
 .article-category-count { display: inline-block; min-width: 1.5em; margin-inline-start: 8px; padding: 1px 7px; border-radius: 999px; background: rgba(11,29,58,.08); color: inherit; font-size: .78em; font-weight: 700; line-height: 1.6; text-align: center; }
 .article-category-filter.is-active .article-category-count { background: rgba(255,255,255,.22); }
 .article-category-empty { margin: 8px 0 24px; padding: 18px 20px; border: 1px dashed var(--border, #cbd5e1); border-radius: 14px; color: var(--muted, #475569); text-align: center; }
+
+.article-faq { margin: 38px 0 8px; }
+.article-faq h2 { margin: 0 0 14px; font-size: 1.28rem; }
+.article-faq details { border: 1px solid var(--line, #dbe3ee); border-radius: 14px; margin: 0 0 10px; background: #fff; overflow: hidden; }
+.article-faq summary { cursor: pointer; padding: 14px 18px; font-weight: 700; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+.article-faq summary::-webkit-details-marker { display: none; }
+.article-faq summary::after { content: "+"; font-size: 1.3rem; line-height: 1; color: #2563eb; }
+.article-faq details[open] summary::after { content: "−"; }
+.article-faq details[open] summary { border-bottom: 1px solid var(--line, #dbe3ee); background: #f8fafc; }
+.article-faq details p { margin: 0; padding: 14px 18px; line-height: 2; }

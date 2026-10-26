@@ -169,6 +169,7 @@ def load_published() -> list[dict]:
             image=https_url(item.get("image")), imageAlt=safe_text(item.get("imageAlt"), 180),
             seoTitle=safe_text(item.get("seoTitle"), 180), canonical=https_url(item.get("canonical")),
             noindex=bool(item.get("noindex")),
+            faq=[{"q": safe_text(x.get("q"), 220), "a": safe_text(x.get("a"), 2500)} for x in (item.get("faq") or []) if isinstance(x, dict) and safe_text(x.get("q"), 220) and safe_text(x.get("a"), 2500)][:20],
         )
         published.append(item)
     slugs = [a["slug"] for a in published]
@@ -283,6 +284,13 @@ def render_article(article: dict, others: list[dict]) -> str:
              "sameAs": ["https://github.com/NMN-deb98"]},
         ],
     }
+    faq_items = article.get("faq") or []
+    faq_html = ""
+    if faq_items:
+        graph["@graph"].append({"@type": "FAQPage", "@id": url + "#faq", "mainEntity": [
+            {"@type": "Question", "name": f["q"], "acceptedAnswer": {"@type": "Answer", "text": f["a"]}} for f in faq_items]})
+        faq_html = '<section class="article-faq" aria-labelledby="faq-title"><h2 id="faq-title">پرسش‌های متداول</h2>' + "".join(
+            f'<details><summary>{esc(f["q"])}</summary><p>{esc(f["a"])}</p></details>' for f in faq_items) + "</section>"
     schema_json = json.dumps(graph, ensure_ascii=False, indent=2).replace("</", "<\\/")
     toc_html = ""
     if len(toc) >= 2:
@@ -335,7 +343,7 @@ def render_article(article: dict, others: list[dict]) -> str:
 <main id="main">
 <nav class="breadcrumb-wrap" aria-label="مسیر راهنما"><div class="container"><ol class="breadcrumb"><li><a href="{SITE_PREFIX}/">خانه</a></li><li class="breadcrumb-separator" aria-hidden="true">›</li><li><a href="{SITE_PREFIX}/articles/">مقالات</a></li><li class="breadcrumb-separator" aria-hidden="true">›</li><li aria-current="page"><span class="breadcrumb-current">{title}</span></li></ol></div></nav>
 <article class="article-detail"><header class="article-detail-header">{cover_html(article)}<div class="article-detail-heading"><div class="article-feed-meta"><span>{esc(category_label)}</span><span>{fa(minutes)} دقیقه مطالعه</span><time datetime="{article["datePublished"]}" itemprop="datePublished">{jalali_label(article["datePublished"])}</time></div><h1>{title}</h1><p class="article-detail-lead">{desc}</p><div class="article-detail-byline"><span>نویسنده: <a href="{SITE_PREFIX}/about/">{AUTHOR}</a></span></div></div></header>
-<div class="{content_class}">{toc_html}<div class="article-detail-prose article-cms-body">{body_html}{tags_html}{related_html(article, others)}<p class="article-detail-credit">این مقاله در تکیما منتشر شده است.</p><div class="article-detail-back"><a href="{SITE_PREFIX}/articles/">مشاهده سایر مقاله‌ها</a><a href="{SITE_PREFIX}/contact/">ارتباط با من</a></div></div></div></article></main>
+<div class="{content_class}">{toc_html}<div class="article-detail-prose article-cms-body">{body_html}{faq_html}{tags_html}{related_html(article, others)}<p class="article-detail-credit">این مقاله در تکیما منتشر شده است.</p><div class="article-detail-back"><a href="{SITE_PREFIX}/articles/">مشاهده سایر مقاله‌ها</a><a href="{SITE_PREFIX}/contact/">ارتباط با من</a></div></div></div></article></main>
 {footer}
 {script}
 </body>
