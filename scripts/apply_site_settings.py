@@ -70,6 +70,101 @@ def social_items(items: list) -> str:
     return "\n".join(out)
 
 
+SECTIONS = {
+    "landing": ("home-landing-shortcuts", 1), "intro": ("home-intro", 2), "projects": ("home-projects", 3),
+    "skills": ("home-skills", 4), "updates": ("home-updates", 5), "video": ("home-video-preview", 6),
+    "journey": ("home-journey", 7), "contact": ("home-contact-cta", 8), "comments": ("comments-section", None),
+}
+
+
+def hex_ok(v) -> str:
+    v = str(v or "").strip()
+    return v if re.fullmatch(r"#[0-9a-fA-F]{6}", v) else ""
+
+
+def shade(color: str, f: float) -> str:
+    r, g, b = (int(color[i:i + 2], 16) for i in (1, 3, 5))
+    if f < 1:
+        r, g, b = (int(c * f) for c in (r, g, b))
+    else:
+        r, g, b = (min(255, int(c + (255 - c) * (f - 1))) for c in (r, g, b))
+    return f"#{r:02x}{g:02x}{b:02x}"
+
+
+def theme_css(theme: dict) -> str:
+    rules = []
+    acc, navy, bg, txt = (hex_ok(theme.get(k)) for k in ("accent", "navy", "bg", "text"))
+    if acc:
+        rules += [f"--teal-500:{acc}", f"--teal-600:{shade(acc, .82)}", f"--teal-700:{shade(acc, .65)}", f"--teal-300:{shade(acc, 1.45)}", f"--teal-100:{shade(acc, 1.85)}", f"--teal-50:{shade(acc, 1.93)}"]
+    if navy:
+        rules += [f"--navy-800:{navy}", f"--navy-900:{shade(navy, .85)}", f"--navy-950:{shade(navy, .66)}", f"--navy-700:{shade(navy, 1.12)}", f"--navy-600:{shade(navy, 1.25)}"]
+    if bg:
+        rules.append(f"--bg:{bg}")
+    if txt:
+        rules.append(f"--text:{txt}")
+    return ":root{" + ";".join(rules) + "}" if rules else ""
+
+
+def custom_html(md_text: str) -> str:
+    try:
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from build_articles import render_body
+        return render_body(md_text)[0]
+    except Exception:
+        return "<p>" + esc(md_text) + "</p>"
+
+
+def apply_home(text: str, home: dict) -> str:
+    for key, (cls, seg) in SECTIONS.items():
+        cfg = (home.get("sections") or {}).get(key) or {}
+        hide = cfg.get("visible") is False
+        text = re.sub(r'(<section class="section ' + cls + r'")(?: hidden)?', lambda m: m.group(1) + (" hidden" if hide else ""), text, count=1)
+        if seg:
+            text = re.sub(r'(<div class="network-road-segment network-road-segment-' + str(seg) + r'")(?: hidden)?', lambda m: m.group(1) + (" hidden" if hide else ""), text, count=1)
+        pat = re.compile(r'<section class="section ' + cls + r'".*?</section>', re.S)
+        m = pat.search(text)
+        if not m:
+            continue
+        blk = m.group(0)
+        if cfg.get("kicker"):
+            blk = re.sub(r'(<span class="home-kicker">).*?(</span>)', lambda x: x.group(1) + esc(cfg["kicker"]) + x.group(2), blk, count=1, flags=re.S)
+        if cfg.get("heading"):
+            blk = re.sub(r'(<h2 id="[^"]*">).*?(</h2>)', lambda x: x.group(1) + esc(cfg["heading"]) + x.group(2), blk, count=1, flags=re.S)
+        if cfg.get("lead"):
+            blk = re.sub(r'(</h2>\s*<p>).*?(</p>)', lambda x: x.group(1) + esc(cfg["lead"]) + x.group(2), blk, count=1, flags=re.S)
+        if key == "landing":
+            for i, t in enumerate((home.get("tiles") or [])[:5]):
+                u = link_url(t.get("url"))
+                lab = str(t.get("label") or "").strip()
+                idx = [0]
+
+                def tile(x, i=i, u=u, lab=lab):
+                    n = idx[0]
+                    idx[0] += 1
+                    if n != i:
+                        return x.group(0)
+                    out = x.group(0)
+                    if u:
+                        out = re.sub(r'href="[^"]*"', 'href="' + esc(u) + '"', out, count=1)
+                    if lab:
+                        out = re.sub(r'(<strong>).*?(</strong>)', lambda y: y.group(1) + esc(lab) + y.group(2), out, count=1, flags=re.S)
+                    return out
+                blk = re.sub(r'<a class="home-landing-tile".*?</a>', tile, blk, flags=re.S)
+        text = text[:m.start()] + blk + text[m.end():]
+    text = re.sub(r'<section class="section home-custom".*?</section>\s*', "", text, flags=re.S)
+    blocks = []
+    for c in (home.get("custom") or [])[:6]:
+        title, md = str(c.get("title") or "").strip(), str(c.get("md") or "").strip()
+        if not md:
+            continue
+        head = f'<div class="home-section-heading"><div><h2>{esc(title)}</h2></div></div>' if title else ""
+        blocks.append(f'<section class="section home-custom"><div class="container">{head}<div class="article-detail-prose article-cms-body">{custom_html(md)}</div></div></section>\n')
+    if blocks:
+        text = text.replace('<section class="section comments-section"', "".join(blocks) + '<section class="section comments-section"', 1)
+    return text
+
+
 def apply_page(path: Path, cfg: dict) -> bool:
     text = path.read_text(encoding="utf-8")
     if '<header class="site-header">' not in text:
@@ -121,6 +216,12 @@ def apply_page(path: Path, cfg: dict) -> bool:
             cls = ["btn btn-primary", "btn btn-ghost"]
             row = "\n".join(f'            <a class="{cls[i]}" href="{esc(link_url(b["url"]))}">{esc(b["label"])}</a>' for i, b in enumerate(btns))
             text = re.sub(r'(<div class="btn-row">).*?(</div>)', lambda x: x.group(1) + "\n" + row + "\n          " + x.group(2), text, count=1, flags=re.S)
+    if path.relative_to(ROOT).as_posix() == "index.html" and cfg.get("home"):
+        text = apply_home(text, cfg["home"])
+    text = re.sub(r'<style id="cms-theme">.*?</style>\s*', "", text, flags=re.S)
+    css = theme_css(cfg.get("theme") or {})
+    if css and "</head>" in text:
+        text = text.replace("</head>", f'<style id="cms-theme">{css}</style>\n</head>', 1)
     if text != orig:
         path.write_text(text, encoding="utf-8")
         return True

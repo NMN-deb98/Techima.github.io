@@ -2412,3 +2412,5 @@ main { flex: 1 0 auto; }
 
 .site-announcement { background: linear-gradient(135deg, #2563eb, #7c3aed); color: #fff; text-align: center; padding: 9px 16px; font-size: .92rem; font-weight: 600; }
 .site-announcement a { color: #fff; text-decoration: underline; }
+
+[hidden] { display: none !important; }
