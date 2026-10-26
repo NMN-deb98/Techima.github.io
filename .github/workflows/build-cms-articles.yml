@@ -8,6 +8,8 @@ on:
     paths:
       - "content/articles/**"
       - "content/pages/**"
+      - "content/site.json"
+      - "scripts/apply_site_settings.py"
       - "scripts/build_articles.py"
       - ".github/workflows/build-cms-articles.yml"
   workflow_dispatch:
@@ -36,8 +38,14 @@ jobs:
       - name: Install Markdown renderer and HTML sanitizer
         run: python -m pip install --disable-pip-version-check "Markdown>=3.6,<4" "bleach>=6.1,<7"
 
+      - name: Apply site settings (menu, footer, hero, announcement)
+        run: python scripts/apply_site_settings.py
+
       - name: Build article and page files, article list and sitemap
         run: python scripts/build_articles.py
+
+      - name: Apply site settings to generated pages
+        run: python scripts/apply_site_settings.py
 
       - name: Commit generated files if they changed
         run: |
