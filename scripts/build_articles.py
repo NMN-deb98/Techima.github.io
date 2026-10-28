@@ -343,6 +343,7 @@ def render_article(article: dict, others: list[dict]) -> str:
   <link rel="apple-touch-icon" sizes="192x192" href="{SITE_PREFIX}/favicon.png">
   <link rel="manifest" href="{SITE_PREFIX}/manifest.webmanifest">
   <link rel="preload" href="{SITE_PREFIX}/assets/fonts/Vazirmatn-Variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preconnect" href="https://techima-comments-api.nimamadadinemati.workers.dev" crossorigin>
   <link rel="stylesheet" href="{SITE_PREFIX}/assets/css/style.css">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="تکیما | Techima">
@@ -457,6 +458,7 @@ def render_page(page_item: dict) -> str:
   <link rel="apple-touch-icon" sizes="192x192" href="{SITE_PREFIX}/favicon.png">
   <link rel="manifest" href="{SITE_PREFIX}/manifest.webmanifest">
   <link rel="preload" href="{SITE_PREFIX}/assets/fonts/Vazirmatn-Variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preconnect" href="https://techima-comments-api.nimamadadinemati.workers.dev" crossorigin>
   <link rel="stylesheet" href="{SITE_PREFIX}/assets/css/style.css">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="تکیما | Techima">

@@ -16,6 +16,9 @@
     var width = 0, height = 0, dpr = 1, fontSize = 12, columns = 0, drops = [];
     var reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var lastFrame = 0, frameId = 0;
+    var conn = navigator.connection || {};
+    var lowPower = conn.saveData === true || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) || (navigator.deviceMemory && navigator.deviceMemory <= 2);
+    var frameGap = lowPower ? 80 : 55;
 
     function layout() {
       var mainRect = main.getBoundingClientRect();
@@ -25,7 +28,7 @@
       var end = Math.max(start, footerTop);
       canvas.style.top = start + "px";
       canvas.style.height = Math.max(1, end - start) + "px";
-      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      dpr = lowPower ? 1 : Math.min(window.devicePixelRatio || 1, 1.5); // lighter canvas memory on slower phones
       width = Math.max(1, main.clientWidth);
       height = Math.max(1, end - start);
       canvas.width = Math.floor(width * dpr);
@@ -36,21 +39,38 @@
       drops = Array.from({ length: columns }, function () { return Math.random() * (height / fontSize); });
     }
 
+    // Pre-built colour strings: avoids creating thousands of strings per frame.
+    var fillCache = {};
+    function trailFill(trail, t) {
+      var k = trail * 32 + t;
+      return fillCache[k] || (fillCache[k] = t === 0 ? "rgba(207,250,254,1)" : "rgba(34,211,238," + ((1 - t / trail) * .98).toFixed(3) + ")");
+    }
+
+    // Slower phones/data-saver users get a lighter frame rate; the look stays the same.
+
     function draw(now) {
       if (document.hidden) { frameId = 0; return; }
-      if (now - lastFrame < 55) { frameId = requestAnimationFrame(draw); return; }
+      if (now - lastFrame < frameGap) { frameId = requestAnimationFrame(draw); return; }
       lastFrame = now;
+      // Only paint the part of the canvas that is on screen; the rest keeps moving but costs nothing.
+      var rect = canvas.getBoundingClientRect();
+      var vh = window.innerHeight || 800;
+      if (rect.bottom < -50 || rect.top > vh + 50) { frameId = requestAnimationFrame(draw); return; }
+      var visTop = -rect.top - fontSize * 2;
+      var visBottom = visTop + vh + fontSize * 4;
       ctx.clearRect(0, 0, width, height);
       ctx.font = fontSize + "px monospace";
       for (var c = 0; c < columns; c++) {
         var x = c * fontSize * 0.48;
         var y = drops[c] * fontSize;
         var trail = 9 + (c % 7);
-        for (var t = 0; t < trail; t++) {
-          var charY = y - t * fontSize;
-          if (charY < 0 || charY > height) continue;
-          ctx.fillStyle = t === 0 ? "rgba(207,250,254,1)" : "rgba(34,211,238," + ((1 - t / trail) * .98).toFixed(3) + ")";
-          ctx.fillText(Math.random() > .5 ? "1" : "0", x, charY);
+        if (y >= visTop && y - trail * fontSize <= visBottom) {
+          for (var t = 0; t < trail; t++) {
+            var charY = y - t * fontSize;
+            if (charY < 0 || charY > height || charY < visTop || charY > visBottom) continue;
+            ctx.fillStyle = trailFill(trail, t);
+            ctx.fillText(Math.random() > .5 ? "1" : "0", x, charY);
+          }
         }
         drops[c] += 1.0 + Math.random() * 1.15;
         if (y > height && Math.random() > .91) drops[c] = -Math.random() * 24;
@@ -86,6 +106,39 @@
       if (hero) observer.observe(hero);
     }
     refresh();
+  })();
+
+  // Offline/repeat-visit cache: static files load instantly from the device after the first visit.
+  (function registerServiceWorker() {
+    if (!("serviceWorker" in navigator) || location.protocol.indexOf("http") !== 0) return;
+    var script = document.currentScript;
+    if (!script || !script.src) return;
+    var swUrl = new URL("../../sw.js", script.src).href;
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register(swUrl).catch(function () { /* ignore: site works without it */ });
+    }, { once: true });
+  })();
+
+  // Start fetching a page as soon as the visitor points at or touches its link.
+  (function prefetchOnIntent() {
+    var conn = navigator.connection || {};
+    if (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || "")) return;
+    var done = {};
+    function onIntent(e) {
+      var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+      if (!a || a.target === "_blank" || a.hasAttribute("download")) return;
+      var url;
+      try { url = new URL(a.href, location.href); } catch (err) { return; }
+      if (url.origin !== location.origin || url.hash && url.pathname === location.pathname) return;
+      if (/\.(pdf|zip|xml|json)$/i.test(url.pathname) || done[url.pathname]) return;
+      if (url.pathname.indexOf("/admin") !== -1 || url.pathname.indexOf("/nimacrm") !== -1 || url.pathname.indexOf("/Comment") !== -1) return;
+      done[url.pathname] = true;
+      var l = document.createElement("link");
+      l.rel = "prefetch"; l.href = url.href; l.as = "document";
+      document.head.appendChild(l);
+    }
+    document.addEventListener("mouseover", onIntent, { passive: true });
+    document.addEventListener("touchstart", onIntent, { passive: true });
   })();
 
   var yearElement = document.getElementById("year");
