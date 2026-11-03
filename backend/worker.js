@@ -188,7 +188,12 @@ export default {
     if (!env.GITHUB_TOKEN || !env.PUBLIC_REPO || !env.PRIVATE_REPO) return response({ error: "service_not_configured" }, 503, allowedOrigin);
     const url = new URL(request.url);
     if (url.pathname === "/comments" && request.method === "GET") {
-      try { return response({ comments: await getPublicComments(env) }, 200, allowedOrigin); }
+      try {
+        let items = await getPublicComments(env);
+        const wanted = url.searchParams.get("page");
+        if (wanted) { const key = wanted.replace(/\/+$/, ""); items = items.filter(item => typeof item.page === "string" && item.page.replace(/\/+$/, "") === key); }
+        return response({ comments: items }, 200, allowedOrigin);
+      }
       catch { return response({ error: "comments_unavailable" }, 503, allowedOrigin); }
     }
     if (url.pathname === "/admin/access-check" && request.method === "GET") {
@@ -250,7 +255,9 @@ export default {
         const found = await findSubmission(env, input.id);
         if (url.pathname.endsWith("/approve")) {
           if (!found.record.name || !found.record.message || !found.record.createdAt) return response({ error: "invalid_submission" }, 400, allowedOrigin);
-          await appendPublicComment(env, { id: found.record.id, name: String(found.record.name).slice(0, 80), message: String(found.record.message).slice(0, 3000), createdAt: found.record.createdAt });
+          const approved = { id: found.record.id, name: String(found.record.name).slice(0, 80), message: String(found.record.message).slice(0, 3000), createdAt: found.record.createdAt };
+          if (typeof found.record.page === "string" && found.record.page.startsWith("/") && found.record.page !== "/") approved.page = found.record.page.slice(0, 160);
+          await appendPublicComment(env, approved);
           await updateStatus(env, found, "approved");
           return response({ ok: true }, 200, allowedOrigin);
         }

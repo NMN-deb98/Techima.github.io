@@ -276,6 +276,61 @@ def related_html(article: dict, others: list[dict]) -> str:
             f'<a href="{SITE_PREFIX}/articles/">همه مقاله‌ها</a></div><div class="related-articles-grid">{cards}</div></section>')
 
 
+def comments_html(slug: str) -> str:
+    """Per-article comments widget. Same markup/API as the home page widget, scoped to this article's URL path."""
+    page = f"{SITE_PREFIX}/articles/{quote(slug)}/"
+    uid = "article-" + re.sub(r"[^a-z0-9]+", "-", slug.lower()).strip("-")[:60]
+    return (
+        f'<section class="section comments-section article-comments" aria-labelledby="comments-title-{uid}" '
+        f'data-comments-widget data-comments-page="{esc(page)}"><div class="container">'
+        '<div class="comments-heading"><span class="comments-kicker">گفت‌وگو دربارهٔ این مقاله</span>'
+        f'<h2 id="comments-title-{uid}">دیدگاه شما</h2>'
+        '<p>نظر، پرسش یا تجربهٔ خودتان را بنویسید. دیدگاه‌ها پس از بررسی و تأیید مدیر در همین صفحه نمایش داده می‌شوند؛ ایمیل شما خصوصی می‌ماند.</p></div>'
+        '<div class="comments-layout"><form class="comments-form" data-comments-form novalidate>'
+        '<div class="comments-form-top"><span class="comments-form-icon" aria-hidden="true">✳</span>'
+        '<div><h3>دیدگاه تازه</h3><p>همهٔ فیلدها الزامی هستند.</p></div></div>'
+        f'<div class="comments-field"><label for="comment-name-{uid}">نام شما</label>'
+        f'<input id="comment-name-{uid}" name="name" type="text" autocomplete="name" maxlength="80" placeholder="مثلاً نیما مددی" required></div>'
+        f'<div class="comments-field"><label for="comment-email-{uid}">ایمیل شما <span>خصوصی</span></label>'
+        f'<input id="comment-email-{uid}" name="email" type="email" autocomplete="email" maxlength="254" placeholder="name@example.com" required>'
+        '<small>ایمیل در سایت نمایش داده نمی‌شود و فقط در مخزن خصوصی ثبت خواهد شد.</small></div>'
+        f'<div class="comments-field"><label for="comment-message-{uid}">متن دیدگاه</label>'
+        f'<textarea id="comment-message-{uid}" name="message" rows="5" maxlength="3000" placeholder="دیدگاهتان را اینجا بنویسید..." required></textarea>'
+        '<div class="comments-counter" data-comment-counter>۰ از ۳۰۰۰</div></div>'
+        f'<div class="comments-honeypot" aria-hidden="true"><label for="comment-website-{uid}">وب‌سایت</label>'
+        f'<input id="comment-website-{uid}" name="website" type="text" tabindex="-1" autocomplete="off"></div>'
+        '<button class="btn btn-primary comments-submit" type="submit"><span>ارسال دیدگاه</span><span aria-hidden="true">↗</span></button>'
+        '<p class="comments-status" data-comments-status role="status" aria-live="polite"></p></form>'
+        '<div class="comments-list-panel"><div class="comments-list-heading"><div><h3>دیدگاه‌های این مقاله</h3>'
+        '<p>گفت‌وگوهای دوستانهٔ اینجا</p></div><span class="comments-count" data-comments-count>۰ پیام</span></div>'
+        '<div class="comments-list" data-comments-list aria-live="polite"><div class="comments-empty"><span aria-hidden="true">✧</span>'
+        '<p>در حال دریافت دیدگاه‌ها...</p></div></div>'
+        '<p class="comments-privacy-note"><span aria-hidden="true">🔒</span> ایمیل‌ها عمومی نیستند؛ فقط نام و متن دیدگاه نمایش داده می‌شود.</p>'
+        '</div></div></div></section>'
+    )
+
+
+COMMENTS_SCRIPT = f'<script src="{SITE_PREFIX}/assets/js/comments.js" defer></script>'
+
+
+def ensure_article_comments() -> int:
+    """Hand-written article pages (not CMS-generated) get the same comments widget, once."""
+    added = 0
+    for folder in sorted(ARTICLES_DIR.iterdir()):
+        page = folder / "index.html"
+        if not (folder.is_dir() and page.exists()) or is_generated(page):
+            continue
+        text = page.read_text(encoding="utf-8")
+        if "data-comments-widget" in text or "</article></main>" not in text:
+            continue
+        text = text.replace("</article></main>", "</article>" + comments_html(folder.name) + "</main>", 1)
+        if "assets/js/comments.js" not in text:
+            text = text.replace("</body>", COMMENTS_SCRIPT + "</body>", 1)
+        page.write_text(text, encoding="utf-8")
+        added += 1
+    return added
+
+
 def render_article(article: dict, others: list[dict]) -> str:
     header, footer, script = site_chrome()
     csp = csp_meta()
@@ -290,8 +345,8 @@ def render_article(article: dict, others: list[dict]) -> str:
         "@graph": [
             {"@type": "Article", "@id": url + "#article", "mainEntityOfPage": {"@id": url + "#webpage"}, "url": url,
              "headline": article["title"], "description": article["description"], "inLanguage": "fa-IR",
-             "author": {"@id": BASE_URL + "/#person"}, "publisher": {"@id": BASE_URL + "/#website"},
-             "articleSection": category_label, "keywords": "، ".join(article["tags"]), "image": og_image,
+             "author": {"@id": BASE_URL + "/#person"}, "publisher": {"@id": BASE_URL + "/#person"},
+             "articleSection": category_label, "image": og_image, "thumbnailUrl": og_image,
              "datePublished": article["datePublished"], "dateModified": article["dateModified"],
              "isAccessibleForFree": True, "wordCount": words},
             {"@type": "WebPage", "@id": url + "#webpage", "url": url, "name": f'{article["title"]} | تکیما',
@@ -308,6 +363,8 @@ def render_article(article: dict, others: list[dict]) -> str:
              "sameAs": ["https://github.com/NMN-deb98"]},
         ],
     }
+    if article["tags"]:
+        graph["@graph"][0]["keywords"] = "، ".join(article["tags"])
     faq_items = article.get("faq") or []
     faq_html = ""
     if faq_items:
@@ -368,9 +425,11 @@ def render_article(article: dict, others: list[dict]) -> str:
 <main id="main">
 <nav class="breadcrumb-wrap" aria-label="مسیر راهنما"><div class="container"><ol class="breadcrumb"><li><a href="{SITE_PREFIX}/">خانه</a></li><li class="breadcrumb-separator" aria-hidden="true">›</li><li><a href="{SITE_PREFIX}/articles/">مقالات</a></li><li class="breadcrumb-separator" aria-hidden="true">›</li><li aria-current="page"><span class="breadcrumb-current">{title}</span></li></ol></div></nav>
 <article class="article-detail"><header class="article-detail-header">{cover_html(article)}<div class="article-detail-heading"><div class="article-feed-meta"><span>{esc(category_label)}</span><span>{fa(minutes)} دقیقه مطالعه</span><time datetime="{article["datePublished"]}" itemprop="datePublished">{jalali_label(article["datePublished"])}</time></div><h1>{title}</h1><p class="article-detail-lead">{desc}</p><div class="article-detail-byline"><span>نویسنده: <a href="{SITE_PREFIX}/about/">{AUTHOR}</a></span></div></div></header>
-<div class="{content_class}">{toc_html}<div class="article-detail-prose article-cms-body">{body_html}{faq_html}{tags_html}{related_html(article, others)}<p class="article-detail-credit">این مقاله در تکیما منتشر شده است.</p><div class="article-detail-back"><a href="{SITE_PREFIX}/articles/">مشاهده سایر مقاله‌ها</a><a href="{SITE_PREFIX}/contact/">ارتباط با من</a></div></div></div></article></main>
+<div class="{content_class}">{toc_html}<div class="article-detail-prose article-cms-body">{body_html}{faq_html}{tags_html}{related_html(article, others)}<p class="article-detail-credit">این مقاله در تکیما منتشر شده است.</p><div class="article-detail-back"><a href="{SITE_PREFIX}/articles/">مشاهده سایر مقاله‌ها</a><a href="{SITE_PREFIX}/contact/">ارتباط با من</a></div></div></div></article>
+{comments_html(article["slug"])}</main>
 {footer}
 {script}
+{COMMENTS_SCRIPT}
 </body>
 </html>
 '''
@@ -618,6 +677,9 @@ def main() -> None:
                 and folder.name not in wanted_pages and page.exists() and is_generated(page)):
             shutil.rmtree(folder)
 
+    manual = ensure_article_comments()
+    if manual:
+        print(f"Added comments widget to {manual} hand-written article page(s).")
     update_articles_index(articles)
     update_sitemap(articles, cms_pages)
     print(f"Built {len(articles)} published CMS article(s) and {len(cms_pages)} CMS page(s).")

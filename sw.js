@@ -2,7 +2,7 @@
    فقط برای سرعت: فایل‌های ثابت (استایل، اسکریپت، فونت، تصویر) بعد از اولین بازدید از حافظهٔ خود دستگاه خوانده می‌شوند.
    صفحه‌ها همیشه اول از اینترنت گرفته می‌شوند تا مطلب تازه دیده شود؛ اگر اینترنت کند یا قطع بود، نسخهٔ ذخیره‌شده نشان داده می‌شود.
    با هر تغییر در فایل‌های ثابت، عدد VERSION را عوض کنید. */
-const VERSION = "eff3488d61";
+const VERSION = "c0mm3nt5-a1";
 const STATIC = "techima-static-" + VERSION;
 const PAGES = "techima-pages-" + VERSION;
 const BASE = new URL("./", self.location).pathname; // e.g. /Techima.github.io/

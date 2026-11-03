@@ -16,6 +16,23 @@
     try { return date.toLocaleDateString("fa-IR", { year: "numeric", month: "short", day: "numeric" }); }
     catch (_) { return ""; }
   }
+  function pageKey(value) {
+    var v = String(value || "");
+    try { v = decodeURIComponent(v); } catch (_) {}
+    return v.replace(/\/+$/, "").toLowerCase();
+  }
+  function widgetPage(widget) { return widget.getAttribute("data-comments-page") || ""; }
+  function noun(widget) { return widgetPage(widget) ? "دیدگاه" : "پیام"; }
+  /* Article widgets show only comments approved for their own page; site-wide widgets (home, contact)
+     show everything that is not tied to an article. Comments without a page field count as site-wide. */
+  function forWidget(widget, items) {
+    var page = widgetPage(widget);
+    if (page) {
+      var key = pageKey(page);
+      return items.filter(function (item) { return item && item.page && pageKey(item.page) === key; });
+    }
+    return items.filter(function (item) { return !(item && item.page && /\/articles\//.test(String(item.page))); });
+  }
   function createCommentCard(item) {
     var card = document.createElement("article");
     card.className = "comment-card";
@@ -55,7 +72,7 @@
     var count = widget.querySelector("[data-comments-count]");
     if (!list || !count) return;
     list.replaceChildren();
-    count.textContent = faNumber(items.length) + " پیام";
+    count.textContent = faNumber(items.length) + " " + noun(widget);
     if (!items.length) {
       var empty = document.createElement("div");
       empty.className = "comments-empty";
@@ -63,7 +80,7 @@
       icon.setAttribute("aria-hidden", "true");
       icon.textContent = "✧";
       var text = document.createElement("p");
-      text.textContent = "هنوز پیامی ثبت نشده است؛ اولین نفر باشید.";
+      text.textContent = widgetPage(widget) ? "هنوز دیدگاهی برای این مقاله ثبت نشده است؛ اولین نفر باشید." : "هنوز پیامی ثبت نشده است؛ اولین نفر باشید.";
       empty.appendChild(icon);
       empty.appendChild(text);
       list.appendChild(empty);
@@ -97,7 +114,7 @@
       var res = await fetch(API_BASE + "/comments", { headers: { "Accept": "application/json" } });
       if (!res.ok) throw new Error("load_failed");
       var data = await res.json();
-      renderComments(widget, Array.isArray(data.comments) ? data.comments : []);
+      renderComments(widget, forWidget(widget, Array.isArray(data.comments) ? data.comments : []));
     } catch (_) {
       var list = widget.querySelector("[data-comments-list]");
       if (list) {
@@ -139,7 +156,7 @@
           email: String(data.get("email") || "").trim(),
           message: String(data.get("message") || "").trim(),
           website: String(data.get("website") || ""),
-          page: window.location.pathname
+          page: widgetPage(widget) || window.location.pathname
         };
         if (submit) submit.disabled = true;
         setStatus(widget, "در حال ثبت امن پیام شما…");
